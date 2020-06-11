@@ -7,7 +7,7 @@ The AMS scripting language is based on the mcfunction syntax. The new syntax sim
 
 ### The Child System
 
-Whenever the compiler finds an line of code indented with a **tab** it will interpret this as a child to the previous line of code with one less indent.
+Whenever the compiler finds an line of code indented with a **tab** it will interpret this as a child to the previous line of code with one less indent. Whenever a command is a child it's parent is simply prepended.
 
 **Example:**
 ```mcfunction
@@ -23,7 +23,7 @@ execute as @e[type=minecraft:villager, tag=!done] run data modify entity @s NoGr
 execute as @e[type=minecraft:villager, tag=!done] run tag @s add done
 ```
 
-This can be done as many times as necessary. Whenever a command is a child it's parent is simply prepended.
+This can be done as many times as necessary.
 
 **Example:**
 ```mcfunction
@@ -38,4 +38,20 @@ Compiles to:
 ```mcfunction
 execute as @a if score @s dummy_scores matches 1 run function main:func1
 execute as @a if score @s dummy_scores matches 2 if score state game_states matches 0 run function main:func2
+```
+
+## Usage
+
+There are many different options to either integrate the compiler into your own application or directly use it as an application. This section will focus on the former.
+
+### Visual Interface
+> Not yet integrated
+
+Simply run ``interface.py`` with python. You will be prompted with to paths to select. One to load from and one to save to. After selecting both press run.
+
+### Run as an import
+Import the compiler into your program and run it with an input and an output path.:
+```python
+from interface import compile
+compile(input_path, output_path)
 ```

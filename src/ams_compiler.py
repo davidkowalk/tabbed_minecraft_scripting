@@ -1,4 +1,4 @@
-def build_tree(file, debug = False):
+def build_tree(file, debug = False, indent = "\t"):
     """
     Takes in a list of strings and builds a command tree from it.
     Each child gets defined with one indent (Tab) more than it's parent. Example:
@@ -24,14 +24,14 @@ def build_tree(file, debug = False):
             line += 1
             continue
 
-        next_tree, line = __build_element__(file, line, debug)
+        next_tree, line = __build_element__(file, line, indent_marker = indent, debug = debug)
 
         tree_list.append(next_tree)
 
     return tree_list
 
 
-def __build_element__(file, line, debug = False):
+def __build_element__(file, line, indent_marker = "\t", debug = False):
     """
     Look at given line of file. if it's a comment or it's empty, skip it.
 
@@ -47,15 +47,15 @@ def __build_element__(file, line, debug = False):
         return None, line
 
     # Count indents and cast to node
-    indent = command.count("\t")
-    current_element = node(command.replace("\t", ""))
+    indent = command.count(indent_marker)
+    current_element = node(command.replace(indent_marker, ""))
 
     next_line = line+1
 
     #As long as you have not reached end of file
     while next_line != len(file):
         if debug:
-            print("Line: ", next_line, "\t", file[next_line])
+            print("Line: ", next_line, indent_marker, file[next_line])
         # Add all children
         next_command = file[next_line]
         #Skip empty or commented lines

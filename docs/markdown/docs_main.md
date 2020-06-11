@@ -45,9 +45,8 @@ execute as @a if score @s dummy_scores matches 2 if score state game_states matc
 There are many different options to either integrate the compiler into your own application or directly use it as an application. This section will focus on the former.
 
 ### Visual Interface
-> Not yet integrated
 
-Simply run ``interface.py`` with python. You will be prompted with to paths to select. One to load from and one to save to. After selecting both press run.
+Simply run ``interface.py`` with python and press "Load and Compile File". You will be prompted with a read path to select. Afterwards the program may briefly freeze but you will then be prompted with a save dialog. Select where you want to save the compiled file to and press "Save".
 
 ### Run as an import
 Import the compiler into your program and run it with an input and an output path.:

@@ -1,6 +1,6 @@
-def build_tree(file: str, debug = False):
+def build_tree(file, debug = False):
     """
-    Takes in a text file and builds a command tree from it.
+    Takes in a list of strings and builds a command tree from it.
     Each child gets defined with one indent (Tab) more than it's parent. Example:
 
     execute if condition1

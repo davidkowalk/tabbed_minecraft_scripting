@@ -1,4 +1,4 @@
-def build_tree(file, debug = False, indent = "\t"):
+def build_tree(file, debug = False):
     """
     Takes in a list of strings and builds a command tree from it.
     Each child gets defined with one indent (Tab) more than it's parent. Example:
@@ -79,6 +79,10 @@ def __build_element__(file, line, debug = False):
 
 
 def compile_tree_list(tree_list):
+    """
+    Compiles node.compile for each element in the list and
+    compiles the string to be pasted into the file.
+    """
     compiled_list = []
     for tree in tree_list:
         compiled_list += tree.compile()
@@ -134,7 +138,7 @@ class node:
 
         return ret_str
 
-    def compile(self, parent = "", n = 0):
+    def compile(self, parent = ""):
         """
         Compiles tree into list. Example:
         execute if condition
@@ -143,7 +147,7 @@ class node:
 
         gets compiled to:
         [
-            execute if condition run command1
+            execute if condition run command1,
             execute if condition run command2
         ]
         """
@@ -153,7 +157,7 @@ class node:
 
         if len(self.children) > 0:
             for child in self.children:
-                next_list += child.compile(next_str, n+1)
+                next_list += child.compile(next_str)
 
             return next_list
         else:

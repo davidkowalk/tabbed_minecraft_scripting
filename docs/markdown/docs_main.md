@@ -11,16 +11,18 @@ Whenever the compiler finds an line of code indented with a **tab** or a **space
 
 **Example:**
 ```mcfunction
-execute as @e[type=minecraft:villager, tag=!done]
-  run data modify entity @s NoGravity set value true
-  run tag @s add done
+execute store result score @s
+    x1 run data get entity @s Pos[0] 1
+    y1 run data get entity @s Pos[1] 1
+    z1 run data get entity @s Pos[2] 1
 ```
 
 Parsed through the compiler this is assembled into this valid mcfunction code.
 
 ```mcfunction
-execute as @e[type=minecraft:villager, tag=!done] run data modify entity @s NoGravity set value true
-execute as @e[type=minecraft:villager, tag=!done] run tag @s add done
+execute store result score @s x1 run data get entity @s Pos[0] 1
+execute store result score @s y1 run data get entity @s Pos[1] 1
+execute store result score @s z1 run data get entity @s Pos[2] 1
 ```
 
 This can be done as many times as necessary.
@@ -113,15 +115,15 @@ Compiles tree into list of strings recursively.
 
 **Example**
 ```
-execute if condition
+execute as selector
   run command1
   run command2
 ```
 Compiled:
 ```
 [
-  "execute if condition run command1",
-  "execute if condition run command2"
+  "execute as selector run command1",
+  "execute as selector run command2"
 ]
 ```
 

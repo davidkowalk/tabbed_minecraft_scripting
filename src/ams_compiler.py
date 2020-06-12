@@ -108,6 +108,19 @@ def __count_indents__(string):
 
     return indents
 
+class marker:
+    def __init__(self, string):
+        self.string = string
+
+    def add_child():
+        pass
+
+    def to_str(self, n=1):
+        return self.string
+
+    def compile(self, parent = ""):
+        pass
+
 class node:
     """
     Tree Node for command tree.

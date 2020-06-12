@@ -24,14 +24,14 @@ def build_tree(file, debug = False, indent = "\t"):
             line += 1
             continue
 
-        next_tree, line = __build_element__(file, line, indent_marker = indent, debug = debug)
+        next_tree, line = __build_element__(file, line, debug = debug)
 
         tree_list.append(next_tree)
 
     return tree_list
 
 
-def __build_element__(file, line, indent_marker = "\t", debug = False):
+def __build_element__(file, line, debug = False):
     """
     Look at given line of file. if it's a comment or it's empty, skip it.
 
@@ -47,7 +47,8 @@ def __build_element__(file, line, indent_marker = "\t", debug = False):
         return None, line
 
     # Count indents and cast to node
-    indent = command.count(indent_marker)
+    #indent = command.count(indent_marker)
+    indent = __count_indents__(command)
     current_element = node(command.replace(indent_marker, ""))
 
     next_line = line+1
@@ -63,7 +64,8 @@ def __build_element__(file, line, indent_marker = "\t", debug = False):
             next_line += 1
             continue
 
-        next_indent = next_command.count("\t")
+        #next_indent = next_command.count("\t")
+        next_indent = __count_indents__(next_command)
 
         if next_indent > indent:
             next_child, next_line = __build_element__(file, next_line)
@@ -87,6 +89,20 @@ def compile_tree_list(tree_list):
 
     return compiled_string
 
+
+def __count_indents__(string):
+    # Accept either "\t" or " " as indent.
+
+    indent_chars = ["\t", " "]
+
+    indents = 0
+    for char in string:
+        if char in indent_chars:
+            indents += 1
+        else:
+            break
+
+    return indents
 
 class node:
     """

@@ -7,7 +7,7 @@ The AMS scripting language is based on the mcfunction syntax. The new syntax sim
 
 ### The Child System
 
-Whenever the compiler finds an line of code indented with a **tab** it will interpret this as a child to the previous line of code with one less indent. Whenever a command is a child it's parent is simply prepended.
+Whenever the compiler finds an line of code indented with a **tab** or a **space** it will interpret this as a child to the previous line of code with one less indent. Whenever a command is a child it's parent is simply prepended.
 
 **Example:**
 ```mcfunction

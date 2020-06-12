@@ -112,13 +112,13 @@ Compiles tree of element and all children into list recursively.
 Compiles tree into list of strings recursively.
 
 **Example**
-```
+```mcfunction
 execute if condition
   run command1
   run command2
 ```
 Compiled:
-```
+```python
 [
   "execute if condition run command1",
   "execute if condition run command2"

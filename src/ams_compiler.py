@@ -49,14 +49,14 @@ def __build_element__(file, line, debug = False):
     # Count indents and cast to node
     #indent = command.count(indent_marker)
     indent = __count_indents__(command)
-    current_element = node(command.replace(indent_marker, ""))
+    current_element = node(command.strip())
 
     next_line = line+1
 
     #As long as you have not reached end of file
     while next_line != len(file):
         if debug:
-            print("Line: ", next_line, indent_marker, file[next_line])
+            print("Line: ", next_line, "\t", file[next_line])
         # Add all children
         next_command = file[next_line]
         #Skip empty or commented lines

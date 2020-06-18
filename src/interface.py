@@ -30,7 +30,7 @@ class Interface:
 
     def __init__(self):
         self.root = tk.Tk()
-        self.root.title("PyCrawler")
+        self.root.title("AMS Interface")
         self.root.resizable(False, False)
 
         canvas = tk.Canvas(self.root, height = 500, width = 500, bg = "#282C34")
@@ -58,7 +58,7 @@ class Interface:
         self.save_file(text)
 
     def get_load_path(self):
-        return filedialog.askopenfilename(title = "Select a File", filetypes = (("Text files", "*.txt*"), ("all files", "*.*")))
+        return filedialog.askopenfilename(title = "Select a File", filetypes = (("MCFunction files", "*.mcfunction"), ("Text files", "*.txt*"), ("all files", "*.*")))
 
     def save_file(self, text):
         f = filedialog.asksaveasfile(mode='w', defaultextension=".mcfunction")

@@ -1,6 +1,6 @@
 import warnings
 
-def build_tree(file, debug = False):
+def build_tree(file, debug = True):
     """
     Takes in a list of strings and builds a command tree from it.
     Each child gets defined with one indent (Tab) more than it's parent. Example:
@@ -22,7 +22,7 @@ def build_tree(file, debug = False):
         command = file[line]
 
         # SKip empty and comments
-        if len(command.strip()) == 0 or command.strip().startswith("#") or len(file) == line:
+        if len(command.strip()) == 0:
             line += 1
             continue
 
@@ -35,7 +35,7 @@ def build_tree(file, debug = False):
 
 def __build_element__(file, line, debug = False):
     """
-    Look at given line of file. if it's a comment or it's empty, skip it.
+    Look at given line of file. If it's a comment create marker, if empty skip it and if neither create node.
 
     Then look at all following lines. If the indent is greater than the current on, execute __build_element__ on the next line and add the returned element as a child. The returned line is the next line to be checked.
 
@@ -44,14 +44,18 @@ def __build_element__(file, line, debug = False):
     # Get current command
     command = file[line]
 
-    # If empty or end of file return
-    if len(command) == 0 or command.strip().startswith("#") or len(file) == line:
+    #If empty return
+    if len(command.strip()) == 0:
         return None, line
 
     # Count indents and cast to node
     #indent = command.count(indent_marker)
     indent = __count_indents__(command)
-    current_element = node(command.strip())
+
+    if command.strip().startswith("#"):
+        current_element = marker(command.strip())
+    else:
+        current_element = node(command.strip())
 
     next_line = line+1
 
@@ -59,18 +63,18 @@ def __build_element__(file, line, debug = False):
     while next_line != len(file):
         if debug:
             print("Line: ", next_line, "\t", file[next_line])
+
         # Add all children
         next_command = file[next_line]
-        #Skip empty or commented lines
-        if len(next_command.strip()) == 0 or next_command.strip().startswith("#"):
+
+        if len(next_command.strip()) == 0:
             next_line += 1
             continue
 
-        #next_indent = next_command.count("\t")
         next_indent = __count_indents__(next_command)
 
         if next_indent > indent:
-            next_child, next_line = __build_element__(file, next_line)
+            next_child, next_line = __build_element__(file, next_line, debug)
             current_element.add_child(next_child)
         else:
             break
@@ -115,7 +119,7 @@ class marker:
         self.string = string
 
     def add_child(self, child):
-        warnings.warn(f"Cannot add child to comment:\n\t{self.string}\n\t\t{child}")
+        warnings.warn(f"Cannot add child to comment.")
 
     def to_str(self, n=1):
         return self.string
@@ -128,7 +132,7 @@ class marker:
 
         compiles to:
         [
-            marker
+            \"marker\"
         ]
         """
         return [self.string]

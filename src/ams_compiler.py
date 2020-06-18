@@ -1,3 +1,5 @@
+import warnings
+
 def build_tree(file, debug = False):
     """
     Takes in a list of strings and builds a command tree from it.
@@ -112,14 +114,24 @@ class marker:
     def __init__(self, string):
         self.string = string
 
-    def add_child():
-        pass
+    def add_child(self, child):
+        warnings.warn(f"Cannot add child to comment:\n\t{self.string}\n\t\t{child}")
 
     def to_str(self, n=1):
         return self.string
 
     def compile(self, parent = ""):
-        pass
+        """
+        Returns marker as while stacktrace.
+        parent
+            marker
+
+        compiles to:
+        [
+            marker
+        ]
+        """
+        return [self.string]
 
 class node:
     """

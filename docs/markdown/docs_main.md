@@ -42,6 +42,36 @@ execute as @a if score @s dummy_scores matches 1 run function main:func1
 execute as @a if score @s dummy_scores matches 2 if score state game_states matches 0 run function main:func2
 ```
 
+### Comments and empty lines
+
+In an input file comments can be added with a "#". While empty lines or lines only containing white-spaces will be ignored, comments will be transferred into the compiled code. Make sure, that the comment has as many or more white-spaces in the front as the following line:
+
+```
+parent
+  line1
+
+  #comment
+  line2
+```
+
+will compile to
+```
+parent line1
+#comment
+parent line2
+```
+
+If a comment however is succeeded by a line with more white spaces than itself it will throw a warning and not compile that line, since comments can not have children:
+
+```error
+parent
+  line1
+#comment
+  line2
+```
+
+Will produce a warning.
+
 ## Usage
 
 There are many different options to either integrate the compiler into your own application or directly use it as an application. This section will focus on the former.

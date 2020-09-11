@@ -1,5 +1,123 @@
 import warnings
 
+help_str = """
+asm transpiler is designed for mincraft mcfunctions to be transformed from a more human readable version into a minecraft runnable version.
+
+-h
+--h
+--help\tShow this message
+
+-c\tProvide a config file.
+  \tams -c [filename]
+
+-i\tProvide input file.
+  \tams -i [filename]
+"""
+
+def main():
+    import json
+    from sys import argv as args
+
+    # Initialiizing to read args from command line
+    arg_pointer = 1
+
+    cdict = {}
+    config = False
+    input = False
+    output = False
+
+    # import args from command line
+
+    if len(args) == 1:
+        raise ValueError("Must provide args. Type 'ams -h' for help.")
+
+    if args[arg_pointer] == "-h" or args[arg_pointer] == "--h" or args[arg_pointer] == "--help":
+        print(help_str)
+        exit()
+
+    while arg_pointer < len(args):
+
+        if args[arg_pointer] == "-c":
+            config = True
+            try:
+                cfile = args[arg_pointer+1]
+                print(cfile)
+            except:
+                raise ValueError("Please supply a config file")
+
+            arg_pointer += 2
+            continue
+
+        if args[arg_pointer] == "-i" and config == False:
+
+            input = True
+            try:
+                cdict["ifiles"] = [args[arg_pointer+1]]
+                if not output:
+                    cdict["ofiles"] = ["out_"+args[arg_pointer+1]]
+            except:
+                raise ValueError("-i requires an input file.\nUsage: -i [filename]")
+
+
+            arg_pointer += 2
+            continue
+
+        if args[arg_pointer] == "-o" and config == False:
+            output = True
+
+            try:
+                cdict["ofiles"] = [args[arg_pointer+1]]
+            except:
+                raise ValueError("-o requires an input file.\nUsage: -o [filename]")
+
+            arg_pointer += 2
+            continue
+
+        print(f"Did not recognize this argument: {args[arg_pointer]}. Ignoring...")
+        arg_pointer += 1
+
+
+    # Read Config file
+
+    if config:
+        try:
+            with open(cfile) as file:
+                loaded_config_dict = json.loads(file)
+        except:
+            raise ValueError(f"Failed to read config file {cfile}")
+
+        # Check Values
+
+        if not ("ifiles" in loaded_config_dict and "ofiles" in loaded_config_dict):
+            raise ValueError("Config file must provide ifiles and ofiles.")
+        elif len(loaded_config_dict["ifiles"]) == len(loaded_config_dict["ofiles"]):
+            raise ValueError("Number of input files must match output files")
+
+        cdict = {**loaded_config_dict, **cdict}
+
+    # Read and compile each file in config.
+    print("Config:\n")
+    print(json.dumps(cdict, indent = 2))
+
+    for i in range(len(cdict["ifiles"])):
+        in_file = cdict["ifiles"][i]
+        out_file = cdict["ofiles"][i]
+
+        print(f"Compiling {in_file}...")
+
+        with open(in_file, "r") as inf:
+            in_text = inf.read().split("\n")
+
+        tree_list = build_tree(in_text)
+
+        out_text = compile_tree_list(tree_list)
+
+        with open(out_file, "w") as out:
+            out.write(out_text)
+
+        print("DONE!\n")
+
+
 def build_tree(file, debug = True):
     """
     Takes in a list of strings and builds a command tree from it.
@@ -191,3 +309,7 @@ class node:
             return next_list
         else:
             return [next_str]
+
+
+if __name__ == '__main__':
+    main()

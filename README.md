@@ -90,4 +90,4 @@ Type
 pip install kivy
 ```
 
-If you are on windows it's also recommended to run the install.ps1 so you can use the ams-transpiler in the console. Unfortunately there is currently no uqivalent for Linux and Mac.
+If you are on windows it's also recommended to run the install.ps1 so you can use the ams-transpiler in the console. Unfortunately there is currently no equivalent for Linux and Mac.

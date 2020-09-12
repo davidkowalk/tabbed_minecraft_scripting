@@ -58,7 +58,7 @@ class Interface:
         self.save_file(text)
 
     def get_load_path(self):
-        return filedialog.askopenfilename(title = "Select a File", filetypes = (("MCFunction files", "*.mcfunction"), ("Text files", "*.txt*"), ("all files", "*.*")))
+        return filedialog.askopenfilename(title = "Select a File", filetypes = (("AMS Files", "*.ams"), ("MCFunction Files", "*.mcfunction"), ("Text Files", "*.txt"), ("All Files", "*.*")))
 
     def save_file(self, text):
         f = filedialog.asksaveasfile(mode='w', defaultextension=".mcfunction")

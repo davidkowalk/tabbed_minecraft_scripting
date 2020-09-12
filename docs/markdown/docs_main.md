@@ -87,6 +87,103 @@ from interface import compile
 compile(input_path, output_path)
 ```
 
+### Run in the Console
+Using the ams transpiler in the console yields the distinct advantage of adding config files allowing the user to compile entire projects at a time.
+
+To install the ams transpiler for windows powershell find the `install.ps1` script. This script will then create a new powershell-profile if needed and add an alias to the setup for the `powershell_wrapper.ps1` script you can find in `/src/`.
+
+After running the installer you can reference the wrapper-script with `ams` in Powershell. Arguments will be passed on to the python script. You can get a help prompt by typing in powershell:
+
+```
+>>> ams -h
+
+asm transpiler is designed for mincraft mcfunctions to be transformed [...]
+```
+
+#### Syntax
+
+The transpiler script takes three possible arguments:
+```
+ams [-c <filename>] [-i <filename>] [-o <filename>] [-h, --h, -help]
+```
+
+| Argument | Description |
+|----------|-------------|
+|    -h    | Shows help prompt. Aliases are --h or -help.
+|    -c    | Takes a path to a configuration file. See the config file section for more info.
+|    -i    | Takes a single input file, that will be passed through the compiler. Will be ignored if -c is supplied.
+|    -o    | Takes a name for a single output file. -i is required. If no output file is supplied the transpiler will prepend "out_" infront of the path supplied with -i.
+
+#### Configuration File
+
+If you want to transpile multiple files at once you will want to write a configuration file. The configuration file must supply an array of input and output files in the JSON format. Example:
+
+```json
+{
+  "ifiles": [
+    "folder/input1.mcfunction",
+    "folder/input2.mcfunction",
+    "input3.mcfunction"
+  ],
+
+  "ofiles": [
+    "folder/output1.mcfunction",
+    "folder/output2.mcfunction",
+    "output3.mcfunction"
+  ]
+}
+```
+
+The paths can either be relative to the current working directory or absolute. They require no formatting beyond that.
+
+After you have written the configuration file you can feed the transpiler with it.
+
+#### Examples
+Let's say in your datapack you have a folder-structure like this:
+```
++---namespace
+|   +---config.json
+|   +---source
+|   |   +---function1.ams
+|   |   \---function2.ams
+|   \---functions
+```
+
+The file ending .ams is reccomended, but the fileending .mcfunction may be more practical to use with existing IDEs. The transpiler does not differenciate between different suffixes. The config file may contain something like this:
+
+```json
+{
+  "ifiles": [
+    "./source/function1.ams",
+    "./source/function2.ams"
+  ],
+
+  "ofiles": [
+    "./functions/function1.mcfunction",
+    "./functions/function2.mcfunction"
+  ]
+}
+```
+
+Pass the configuration file into the ams transpiler:
+```
+>>> ams -c config.json
+
+Compiling ./source/function1.ams...
+DONE!
+
+Compiling ./source/function2.ams...
+DONE!
+```
+
+The transpiler will then produce the specified output files or overwrite them if they already exist.
+
+If you want to transpile single files you can use the -i and -o tag:
+
+```
+ams -i ./source/function1.ams -o ./functions/function1.mcfunction
+```
+
 # API Reference
 
 The ``ams_compiler.py`` is the api which handles the data. You can import it with ``import ams_compiler``.

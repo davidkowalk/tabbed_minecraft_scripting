@@ -70,7 +70,7 @@ sudo apt install python3
 
 Check the installation afterwards with
 ```
-python3 -v
+python3 -V
 ```
 
 ### Setting up the Scripts

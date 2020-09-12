@@ -56,7 +56,7 @@ execute if
 
 Python scripts don't necessarily need to be installed. This section will however explain how to set it up.
 
-## Download Python
+### Download Python
 
 First you need to get the newest version of python.
 
@@ -73,7 +73,7 @@ Check the installation afterwards with
 python3 -v
 ```
 
-## Setting up the Scripts
+### Setting up the Scripts
 
 Download this repository either through the github website or using git through the console:
 ```

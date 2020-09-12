@@ -1,17 +1,25 @@
 import warnings
 
 help_str = """
-asm transpiler is designed for mincraft mcfunctions to be transformed from a more human readable version into a minecraft runnable version.
+ams transpiler is designed for mincraft mcfunctions to be transformed from a more human readable version into a minecraft runnable version.
 
 -h
 --h
---help\tShow this message
+--help  Show this message
 
--c\tProvide a config file.
-  \tams -c [filename]
+===========================
 
--i\tProvide input file.
-  \tams -i [filename]
+-c  Provide a config file.
+    ams -c [filename]
+
+-i  Provide input file.
+    Not compatible with -c
+    ams -i [filename]
+
+ -o Provide an output file
+    Not Compatible with -c.
+    Must first provide input file with -i [filename]
+    ams -i [filename] -o [filename]
 """
 
 def main():

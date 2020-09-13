@@ -1,6 +1,11 @@
 # Windows Setup Script For Powershell
 # ===================================
 
+if ($ams_installed) {
+  echo "AMS is already installed!"
+  exit
+}
+
 echo "Searching for profile..."
 $profile_exists = Test-path $profile
 
@@ -20,7 +25,9 @@ if ($profile_exists -ne $true) {
   # Append Wrapper Script
   echo "Updating start-up script..."
   $profile_text += "
-  New-Alias ams "+$PSScriptRoot+"\src\powershell_wrapper.ps1"
+New-Alias ams "+$PSScriptRoot+"\src\powershell_wrapper.ps1
+"
+  $profile_text += '$ams_installed = $true'
 
 }
 

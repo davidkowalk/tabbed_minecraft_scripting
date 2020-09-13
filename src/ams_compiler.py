@@ -98,8 +98,8 @@ def main():
 
         if not ("ifiles" in loaded_config_dict and "ofiles" in loaded_config_dict):
             raise ValueError("Config file must provide ifiles and ofiles.")
-        elif len(loaded_config_dict["ifiles"]) == len(loaded_config_dict["ofiles"]):
-            raise ValueError("Number of input files must match output files")
+        elif len(loaded_config_dict["ifiles"]) != len(loaded_config_dict["ofiles"]):
+            raise ValueError(f"Number of input files must match output files.")
 
         cdict = {**loaded_config_dict, **cdict}
 

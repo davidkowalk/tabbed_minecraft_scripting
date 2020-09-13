@@ -90,7 +90,7 @@ def main():
     if config:
         try:
             with open(cfile) as file:
-                loaded_config_dict = json.loads(file)
+                loaded_config_dict = json.load(file)
         except:
             raise ValueError(f"Failed to read config file {cfile}")
 

@@ -91,3 +91,7 @@ pip install kivy
 ```
 
 If you are on windows it's also recommended to run the install.ps1 or install.sh on linux, so you can use the ams-transpiler in the console. Please report any issues you are having with the install.
+
+### Updating
+
+To update the script to a newer version simpy download the git repository and replace your old `ams_compiler.py` with the newer verion of the file.

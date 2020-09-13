@@ -109,10 +109,11 @@ ams [-c <filename>] [-i <filename>] [-o <filename>] [-h, --h, -help]
 
 | Argument | Description |
 |----------|-------------|
-|    -h    | Shows help prompt. Aliases are --h or -help.
+|    -h    | Shows help prompt. Aliases are `--h` or `-help`.
 |    -c    | Takes a path to a configuration file. See the config file section for more info.
-|    -i    | Takes a single input file, that will be passed through the compiler. Will be ignored if -c is supplied.
-|    -o    | Takes a name for a single output file. -i is required. If no output file is supplied the transpiler will prepend "out_" infront of the path supplied with -i.
+|    -i    | Takes a single input file, that will be passed through the compiler. Will be ignored if `-c` is supplied.
+|    -o    | Takes a name for a single output file. -i is required. If no output file is supplied the transpiler will prepend "out_" infront of the path supplied with `-i`.
+|    -d    | If flag is set the transpiler will show debug information. Alias: `--debug`
 
 #### Configuration File
 

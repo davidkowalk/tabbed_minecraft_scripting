@@ -3,9 +3,8 @@ import warnings
 help_str = """
 ams transpiler is designed for mincraft mcfunctions to be transformed from a more human readable version into a minecraft runnable version.
 
--h
---h
---help  Show this message
+-h  Show this message
+    Alias: --help, --h
 
 ===========================
 
@@ -20,6 +19,11 @@ ams transpiler is designed for mincraft mcfunctions to be transformed from a mor
     Not Compatible with -c.
     Must first provide input file with -i [filename]
     ams -i [filename] -o [filename]
+
+-d  Show debug information
+    ams [options] -d
+
+    Alias: --debug
 """
 
 def main():
@@ -33,6 +37,7 @@ def main():
     config = False
     input = False
     output = False
+    debug = False
 
     # import args from command line
 
@@ -49,7 +54,6 @@ def main():
             config = True
             try:
                 cfile = args[arg_pointer+1]
-                print(cfile)
             except:
                 raise ValueError("Please supply a config file")
 
@@ -81,6 +85,12 @@ def main():
             arg_pointer += 2
             continue
 
+        if args[arg_pointer] == "-d" or args[arg_pointer] == "--debug":
+            debug = True
+            arg_pointer += 1
+            continue
+
+
         print(f"Did not recognize this argument: {args[arg_pointer]}. Ignoring...")
         arg_pointer += 1
 
@@ -104,8 +114,9 @@ def main():
         cdict = {**loaded_config_dict, **cdict}
 
     # Read and compile each file in config.
-    print("Config:\n")
-    print(json.dumps(cdict, indent = 2))
+    if debug:
+        print("Config:\n")
+        print(json.dumps(cdict, indent = 2))
 
     for i in range(len(cdict["ifiles"])):
         in_file = cdict["ifiles"][i]
@@ -116,7 +127,7 @@ def main():
         with open(in_file, "r") as inf:
             in_text = inf.read().split("\n")
 
-        tree_list = build_tree(in_text)
+        tree_list = build_tree(in_text, debug=debug)
 
         out_text = compile_tree_list(tree_list)
 
@@ -126,7 +137,7 @@ def main():
         print("DONE!\n")
 
 
-def build_tree(file, debug = True):
+def build_tree(file, debug = False):
     """
     Takes in a list of strings and builds a command tree from it.
     Each child gets defined with one indent (Tab) more than it's parent. Example:

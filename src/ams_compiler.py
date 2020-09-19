@@ -38,11 +38,13 @@ def main():
     input = False
     output = False
     debug = False
+    args_supplied = False
 
     # import args from command line
 
     if len(args) == 1:
-        raise ValueError("Must provide args. Type 'ams -h' for help.")
+        print("Must provide args. Type 'ams -h' for help.")
+        exit(1)
 
     if args[arg_pointer] == "-h" or args[arg_pointer] == "--h" or args[arg_pointer] == "--help":
         print(help_str)
@@ -62,6 +64,7 @@ def main():
 
         if args[arg_pointer] == "-i" and config == False:
 
+            args_supplied = True
             input = True
             try:
                 cdict["ifiles"] = [args[arg_pointer+1]]
@@ -75,8 +78,9 @@ def main():
             continue
 
         if args[arg_pointer] == "-o" and config == False:
-            output = True
 
+            args_supplied = True
+            output = True
             try:
                 cdict["ofiles"] = [args[arg_pointer+1]]
             except:
@@ -86,6 +90,8 @@ def main():
             continue
 
         if args[arg_pointer] == "-d" or args[arg_pointer] == "--debug":
+
+            args_supplied = True
             debug = True
             arg_pointer += 1
             continue
@@ -94,6 +100,9 @@ def main():
         print(f"Did not recognize this argument: {args[arg_pointer]}. Ignoring...")
         arg_pointer += 1
 
+    if not args_supplied:
+        print("Must provide args. Type 'ams -h' for help.")
+        exit(1)
 
     # Read Config file
 

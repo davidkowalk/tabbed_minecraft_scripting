@@ -90,7 +90,42 @@ Type
 pip install kivy
 ```
 
-If you are on windows it's also recommended to run the install.ps1 or install.sh on linux, so you can use the ams-transpiler in the console. Please report any issues you are having with the install.
+### Install the script as an alias in the console
+
+If you are on windows it's also recommended to run the install.ps1 or install.sh on linux, so you can use the ams-transpiler in the console.
+
+**Windows Powershell**
+```powershell
+PS> .\install.ps1
+
+Searching for profile...
+Updating start-up script...
+Saving to Disk...
+
+===========
+|| DONE! ||
+===========
+PS >
+```
+
+**Linux Bash**
+```
+user: $ ./install.sh
+
+Finding Executable Directory...
+Adding alias to startup file...
+Update Current Session
+===========
+|| DONE! ||
+===========
+```
+
+Please note that the Windows script will check whether the script is already installed, the Linux script will not. The scripts set the python script as an alias. The install will break if you move the repository after running the script.
+
+See [`/docs/markdown/docs_main.md`](https://github.com/davidkowalk/advanced_minecraft_scripting/blob/master/docs/markdown/docs_main.md#run-in-the-console) for usage reference.
+
+
+Please report any issues you are having with the install.
 
 ### Updating
 

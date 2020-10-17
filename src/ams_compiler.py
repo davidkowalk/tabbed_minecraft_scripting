@@ -63,6 +63,7 @@ def main():
 
         if args[arg_pointer] == "-c":
             config = True
+            args_supplied = True
             try:
                 cfile = args[arg_pointer+1]
             except:

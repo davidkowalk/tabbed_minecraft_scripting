@@ -144,7 +144,13 @@ def main():
         print(f"Compiling {in_file}...")
 
         with open(in_file, "r") as inf:
-            in_text = inf.read().split("\n")
+            in_text = inf.read()
+
+        if "define" in cdict:
+            for alias in cdict["define"]:
+                in_text = in_text.replace(alias, cdict["define"][alias])
+
+        in_text = in_text.split("\n")
 
         tree_list = build_tree(in_text, debug=debug)
 

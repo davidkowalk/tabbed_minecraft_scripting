@@ -15,10 +15,16 @@ ams transpiler is designed for mincraft mcfunctions to be transformed from a mor
     Not compatible with -c
     ams -i [filename]
 
- -o Provide an output file
+-o  Provide an output file
     Not Compatible with -c.
     Must first provide input file with -i [filename]
     ams -i [filename] -o [filename]
+
+-p  Creates project file. Must comply with following format:
+    ams -p [project file] -i [filename(s)] -o [filename(s)]
+    Alias: --createproject
+
+    Example: ams -p project.json -i in1 in2 in3 -o out1 out2 out3
 
 -d  Show debug information
     ams [options] -d
@@ -49,6 +55,9 @@ def main():
     if args[arg_pointer] == "-h" or args[arg_pointer] == "--h" or args[arg_pointer] == "--help":
         print(help_str)
         exit()
+
+    if args[arg_pointer] == "-p" or args[arg_pointer] == "--createproject":
+        create_project(args, 1, json)
 
     while arg_pointer < len(args):
 
@@ -144,6 +153,57 @@ def main():
             out.write(out_text)
 
         print("DONE!\n")
+
+def create_project(args, arg_pointer, json):
+    """
+    Creates Project file from console args.
+    Usage: ams -p [project file] -i [filename(s)] -o [filename(s)]
+    """
+    out_filename = args[arg_pointer+1]
+    print(f"Creating Project {out_filename}!")
+    arg_pointer += 2
+
+    reading_in = False
+    reading_out = False
+
+    infiles = list()
+    outfiles = list()
+
+    while arg_pointer < len(args):
+
+        if args[arg_pointer] == "-i":
+            reading_in = True
+            reading_out = False
+
+        elif args[arg_pointer] == "-o":
+            reading_in = False
+            reading_out = True
+
+        elif reading_in:
+            infiles.append(args[arg_pointer])
+
+        elif reading_out:
+            outfiles.append(args[arg_pointer])
+
+        else:
+            print("Unknown Command\nType \"ams -h\" for help.")
+            exit()
+
+        arg_pointer += 1
+
+    # print(f"Infiles: {infiles}")
+    # print(f"Outfiles: {outfiles}")
+    if len(infiles) != len(outfiles):
+        print("\nWARNING: Number of input and output files does not match.\n")
+
+    dict = {"ifiles": infiles, "ofiles": outfiles}
+
+    with open(out_filename, "w") as f:
+        json.dump(dict, f, indent=2)
+
+    print("DONE!")
+
+    exit()
 
 
 def build_tree(file, debug = False):

@@ -102,14 +102,19 @@ asm transpiler is designed for mincraft mcfunctions to be transformed [...]
 
 #### Syntax
 
-The transpiler script takes three possible arguments:
+The transpiler script takes six possible arguments:
 ```
-ams [-c <filename>] [-i <filename>] [-o <filename>] [-h, --h, -help]
+ams [-c <filename>] [-i <filename>] [-o <filename>] [-d --debug] [-h, --h, -help]
+```
+or
+```
+ams -p [project file] -i [filename(s)] -o [filename(s)]
 ```
 
 | Argument | Description |
 |----------|-------------|
 |    -h    | Shows help prompt. Aliases are `--h` or `-help`.
+|    -p    | Creates configuration file which can be used by -c
 |    -c    | Takes a path to a configuration file. See the config file section for more info.
 |    -i    | Takes a single input file, that will be passed through the compiler. Will be ignored if `-c` is supplied.
 |    -o    | Takes a name for a single output file. -i is required. If no output file is supplied the transpiler will prepend "out_" infront of the path supplied with `-i`.
@@ -138,6 +143,21 @@ If you want to transpile multiple files at once you will want to write a configu
 The paths can either be relative to the current working directory or absolute. They require no formatting beyond that.
 
 After you have written the configuration file you can feed the transpiler with it.
+
+#### Creating a Configuration File
+
+Configuration files can be created either by hand or with the -p tag.
+```
+ams -p [project file] -i [filename(s)] -o [filename(s)]
+```
+
+The project file is the path to the configuration file which will be written to. The "-i" tag defines that the following will be paths to the input files as defined in the previous section. All filenames have to be separated by spaces.
+
+**Example**:
+```
+ams -p project.json -i in1 in2 in3 -o out1 out2 out3
+```
+Alternatively to `-p` you can also use `--createproject`
 
 #### Examples
 Let's say in your datapack you have a folder-structure like this:

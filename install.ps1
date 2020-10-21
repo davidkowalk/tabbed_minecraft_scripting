@@ -3,8 +3,20 @@
 
 if ($ams_installed) {
   echo "AMS is already installed!"
+  # exit
+}
+
+$confirm=Read-Host "Install at $PSScriptRoot ? [Y/N]"
+if($confirm -eq "N") {
+  echo "Aborting install..."
+  exit
+} elseif($confirm -eq "Y") {
+  echo "Proceeding with installation..."
+} else {
+  echo "Please supply a valid answer."
   exit
 }
+
 
 echo "Searching for profile..."
 $profile_exists = Test-path $profile

@@ -3,7 +3,7 @@
 
 if ($ams_installed) {
   echo "AMS is already installed!"
-  # exit
+  exit
 }
 
 $confirm=Read-Host "Install at $PSScriptRoot ? [Y/N]"

@@ -52,3 +52,19 @@ execute if
 ```
 
 This produces four completely unique lines of code, none of which could be outsourced into a secondary file for performance.
+
+
+## 2. Conditional blocks
+
+A block of code indented below a condition will test the condition for every line of the code.
+
+Suppose a code block like this:
+
+```mcfunction
+execute if score Score GameScores matches 1
+  run scoreboard players set Score GameScores 0
+  run function lobby:reset
+  run function effect:reset
+```
+
+In this scenario the functions `lobby:reset` and `effect:reset` will never be called, since the condition can not be satisfied. Instead the modification of `Score` should either be moved to the end of the code-block or the three lines should be moved into a wrapper function which calls all three. This will also improve performance, since the condition is only tested once.

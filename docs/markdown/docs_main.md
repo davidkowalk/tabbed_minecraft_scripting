@@ -1,9 +1,9 @@
-# Advanced Minecraft Scripting
+# Tabbed Minecraft Scripting
 This project aims at producing a more human readable version of Minecraft's mcfunction format. This documentation will explain the new syntax, the components of the compiler and contains a user guide to use this program to compile your project into a Minecraft datapack.
 
 ## Syntax
 
-The AMS scripting language is based on the mcfunction syntax. The new syntax simply aims at making the code more readable and reducing duplicate code.
+The TMS scripting language is based on the mcfunction syntax. The new syntax simply aims at making the code more readable and reducing duplicate code.
 
 ### The Child System
 
@@ -88,9 +88,9 @@ compile(input_path, output_path)
 ```
 
 ### Run in the Console
-Using the ams transpiler in the console yields the distinct advantage of adding config files allowing the user to compile entire projects at a time.
+Using the tms transpiler in the console yields the distinct advantage of adding config files allowing the user to compile entire projects at a time.
 
-To install the ams transpiler for windows powershell find the `install.ps1` script. This script will then create a new powershell-profile if needed and add an alias to the setup for the `powershell_wrapper.ps1` script you can find in `/src/`.
+To install the tms transpiler for windows powershell find the `install.ps1` script. This script will then create a new powershell-profile if needed and add an alias to the setup for the `powershell_wrapper.ps1` script you can find in `/src/`.
 
 After running the installer you can reference the wrapper-script with `ams` in Powershell. Arguments will be passed on to the python script. You can get a help prompt by typing in powershell:
 
@@ -203,7 +203,7 @@ The file ending .ams is reccomended, but the fileending .mcfunction may be more 
 }
 ```
 
-Pass the configuration file into the ams transpiler:
+Pass the configuration file into the tms transpiler:
 ```
 >>> ams -c config.json
 

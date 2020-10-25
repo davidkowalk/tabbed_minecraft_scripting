@@ -1,7 +1,9 @@
-# Advanced Minecraft Scripting
+# Tabbed Minecraft Scripting
 This project aims at producing a more human readable version of Minecraft's mcfunction format. This documentation will explain the new syntax, the components of the compiler and contains a user guide to use this program to compile your project into a Minecraft datapack.
 
 Please read the docs in [/docs/markdown/](https://github.com/davidkowalk/advanced_minecraft_scripting/blob/master/docs/markdown/).
+
+**Note**: This project was formerly called "advanced minecraft scripting". The abbreviation "ams" is a remnant of that name.
 
 ## The Language
 
@@ -81,7 +83,7 @@ git clone https://github.com/davidkowalk/advanced_minecraft_scripting.git
 ```
 or if you don't have git:
 ```
-wget https://github.com/davidkowalk/advanced_minecraft_scripting/archive/master.zip -outfile advanced_minecraft_scripting.zip
+wget https://github.com/davidkowalk/advanced_minecraft_scripting/archive/master.zip -outfile tabbed_minecraft_scripting.zip
 ```
 
 Once you downloaded (and unpacked) the tool into a folder you would like to store it in you need to resolve the dependencies. This project is only dependent on kivy to generate the user interface.

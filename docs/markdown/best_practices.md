@@ -1,10 +1,10 @@
-# AMS Best Practice Proposals
+# TMS Best Practice Proposals
 
-ABPP is meant as a documentation of general best practices to optimize readabillity and run time performance.
+TBPP is meant as a documentation of general best practices to optimize readabillity and run time performance.
 
 ## 1. Indentation vs. Functions
 
-Even though AMS makes repeated beginnings of lines extremely easy this is not always optimal for runtime performance.
+Even though TMS makes repeated beginnings of lines extremely easy this is not always optimal for runtime performance.
 
 **When should you create a new function?**
 

@@ -68,3 +68,25 @@ execute if score Score GameScores matches 1
 ```
 
 In this scenario the functions `lobby:reset` and `effect:reset` will never be called, since the condition can not be satisfied. Instead the modification of `Score` should either be moved to the end of the code-block or the three lines should be moved into a wrapper function which calls all three. This will also improve performance, since the condition is only tested once.
+
+## Constant Naming Convention
+
+To avoid conflicts with existing expressions in your code, constants defined in the config-file should be prepended with either `var_` or `const_`. Example
+
+```json
+{
+  "ifiles": [],
+  "ofiles": [],
+  "define": {
+    "const_location_1": "x y z",
+    "const_location_2": "x y z"
+  }
+}
+```
+
+where in the mcfunction source file you may then use these constants as a replacement for the values you defined:
+
+```mcfunction
+setbloc
+  const_location_1 air
+  const_location_2 redstone_block

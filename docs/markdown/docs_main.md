@@ -1,6 +1,23 @@
 # Tabbed Minecraft Scripting
 This project aims at producing a more human readable version of Minecraft's mcfunction format. This documentation will explain the new syntax, the components of the compiler and contains a user guide to use this program to compile your project into a Minecraft datapack.
 
+**Overview**
+
+| No. | Content |
+|-----|---------|
+| **0**   | **Syntax**
+| 0.1 | Child System
+| 0.2 | Comments and empty lines
+| **1**   | **Usage**
+| 1.1 | Visual Interface
+| 1.2 | Run as an Import
+| 1.4 | Run in the console
+| *1.4.1* | *Syntax*
+| *1.4.2* | *Configuration File*
+| *1.4.3* | *Creating a Configuration File*
+| *1.4.4* | *Aliasing*
+| *1.4.5* | *Examples*
+
 ## Syntax
 
 The TMS scripting language is based on the mcfunction syntax. The new syntax simply aims at making the code more readable and reducing duplicate code.

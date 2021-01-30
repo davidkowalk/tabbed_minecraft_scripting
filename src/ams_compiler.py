@@ -161,10 +161,46 @@ def main():
 
         print("DONE!\n")
 
+def add_definition(args, pointer, json):
+    from os.path import isfile
+    """
+    Creates a definition for a project file.
+    Usage: ams -d <key> <value> <project file>
+    """
+
+    key = args[pointer+1]
+    value = args[pointer+2]
+    path = args[pointer+3]
+
+    if not isfile(path):
+        print(f"\"{path}\" is not a file.")
+        return
+
+    try:
+        with open(path, "r") as f:
+            content_dict = json.read(f)
+    except:
+        print(f"Failed to read json at \"{path}\"\nPlease create a valid file first. (See -h)")
+        return
+
+    # Create definition if it does not exist
+    if not "define" in content_dict:
+        content_dict["define"] = dict()
+
+    content_dict["define"][key] = value
+
+
+    with open(path, "w") as f:
+        json.dump(content_dict, f, indent=2)
+
+    return
+
+
+
 def create_project(args, arg_pointer, json):
     """
     Creates Project file from console args.
-    Usage: ams -p [project file] -i [filename(s)] -o [filename(s)]
+    Usage: ams -p <project file> -i <filename(s)> -o <filename(s)>
     """
     out_filename = args[arg_pointer+1]
     print(f"Creating Project {out_filename}!")

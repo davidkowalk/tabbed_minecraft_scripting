@@ -26,6 +26,14 @@ ams transpiler is designed for mincraft mcfunctions to be transformed from a mor
 
     Example: ams -p project.json -i in1 in2 in3 -o out1 out2 out3
 
+-a  Defines an alias in an existing project. Must comply with the following format:
+    ams -a <key> <value> <project>
+
+    If any string contains a space the string must be surrounded by quotation marks.
+    Example:
+
+    ams -a location \"x y z\" project.py
+
 -d  Show debug information
     ams [options] -d
 
@@ -52,12 +60,18 @@ def main():
         print("Must provide args. Type 'ams -h' for help.")
         exit(1)
 
-    if args[arg_pointer] == "-h" or args[arg_pointer] == "--h" or args[arg_pointer] == "--help":
+    elif args[arg_pointer] == "-h" or args[arg_pointer] == "--h" or args[arg_pointer] == "--help":
         print(help_str)
         exit()
 
-    if args[arg_pointer] == "-p" or args[arg_pointer] == "--createproject":
+    elif args[arg_pointer] == "-p" or args[arg_pointer] == "--createproject":
         create_project(args, 1, json)
+        exit()
+
+    elif args[arg_pointer] == "-a" or args[arg_pointer] == "--define":
+        add_definition(args, 1)
+        exit()
+
 
     while arg_pointer < len(args):
 
@@ -161,8 +175,9 @@ def main():
 
         print("DONE!\n")
 
-def add_definition(args, pointer, json):
+def add_definition(args, pointer):
     from os.path import isfile
+    import json
     """
     Creates a definition for a project file.
     Usage: ams -d <key> <value> <project file>
@@ -178,7 +193,7 @@ def add_definition(args, pointer, json):
 
     try:
         with open(path, "r") as f:
-            content_dict = json.read(f)
+            content_dict = json.load(f)
     except:
         print(f"Failed to read json at \"{path}\"\nPlease create a valid file first. (See -h)")
         return
@@ -245,8 +260,6 @@ def create_project(args, arg_pointer, json):
         json.dump(dict, f, indent=2)
 
     print("DONE!")
-
-    exit()
 
 
 def build_tree(file, debug = False):

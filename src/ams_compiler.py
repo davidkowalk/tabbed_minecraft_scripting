@@ -183,9 +183,14 @@ def add_definition(args, pointer):
     Usage: ams -d <key> <value> <project file>
     """
 
+    if len(args) < 5:
+        print("Did not provide enough arguments.")
+        return
+
     key = args[pointer+1]
     value = args[pointer+2]
     path = args[pointer+3]
+
 
     if not isfile(path):
         print(f"\"{path}\" is not a file.")
@@ -202,7 +207,25 @@ def add_definition(args, pointer):
     if not "define" in content_dict:
         content_dict["define"] = dict()
 
-    content_dict["define"][key] = value
+    if key in content_dict["define"]:
+        print(f"{key} already exists: {content_dict['define'][key]}.")
+
+
+        while True:
+            answer = input("Would you like to overwrite? (Y/N): ")
+
+            if answer == "N" or answer == "n":
+                print("Aborting.")
+                return
+            elif answer == "Y" or answer == "y":
+                break
+            else:
+                print("Invalid answer.\n")
+
+        content_dict["define"][key] = value
+
+    else:
+        content_dict["define"][key] = value
 
 
     with open(path, "w") as f:

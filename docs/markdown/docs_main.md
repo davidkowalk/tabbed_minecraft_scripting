@@ -107,7 +107,9 @@ compile(input_path, output_path)
 ### Run in the Console
 Using the tms transpiler in the console yields the distinct advantage of adding config files allowing the user to compile entire projects at a time.
 
-To install the tms transpiler for windows powershell find the `install.ps1` script. This script will then create a new powershell-profile if needed and add an alias to the setup for the `powershell_wrapper.ps1` script you can find in `/src/`.
+To install the tms transpiler find the `install.ps1` script for windows powershell or `install.sh` for Linux. This script will then create a new powershell-profile/terminal startup script if needed and add an alias to the setup for the `powershell_wrapper.ps1` in `/src/` on windows or directly to the python script on Linux.
+
+> This is due to the inabillity of powershell to use spaces in aliases. I wish I was joking,
 
 After running the installer you can reference the wrapper-script with `ams` in Powershell. Arguments will be passed on to the python script. You can get a help prompt by typing in powershell:
 

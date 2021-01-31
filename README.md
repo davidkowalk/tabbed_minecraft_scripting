@@ -7,7 +7,7 @@ Please read the docs in [/docs/markdown/](https://github.com/davidkowalk/advance
 
 ## The Language
 
-The AMS transpiler does not actually introduce a new language, but offers a way of organizing existing minecraft code into a more readable format using indentation.
+The tms-transpiler does not actually introduce a new language, but offers a way of organizing existing minecraft code into a more readable format using indentation.
 
 ```
 parent
@@ -86,7 +86,7 @@ or if you don't have git:
 wget https://github.com/davidkowalk/advanced_minecraft_scripting/archive/master.zip -outfile tabbed_minecraft_scripting.zip
 ```
 
-Once you downloaded (and unpacked) the tool into a folder you would like to store it in you need to resolve the dependencies. This project is only dependent on kivy to generate the user interface.
+Once you downloaded (and unpacked) the tool into a folder you would like to store it in you need to resolve the dependencies. This project is only dependent on kivy to generate the user interface if you want the visual interface. If not this is not required.
 Type
 ```
 pip install kivy
@@ -94,7 +94,7 @@ pip install kivy
 
 ### Install the script as an alias in the console
 
-If you are on windows it's also recommended to run the install.ps1 or install.sh on linux, so you can use the ams-transpiler in the console.
+It's also recommended to run the install.ps1 if you are on windows or install.sh on linux, so you can use the tms-transpiler in the console.
 
 **Windows Powershell**
 ```powershell
@@ -131,4 +131,4 @@ Please report any issues you are having with the install.
 
 ### Updating
 
-To update the script to a newer version simpy download the git repository and replace your old `ams_compiler.py` with the newer verion of the file.
+To update the script to a newer version simpy download the git repository and replace your old `tms_compiler.py` with the newer verion of the file.

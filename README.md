@@ -1,9 +1,12 @@
+[<img src="https://img.buymeacoffee.com/button-api/?text=Buy me food&emoji=🍕&slug=davidkowalk&button_colour=FF5F5F&font_colour=ffffff&font_family=Arial&outline_colour=000000&coffee_colour=FFDD00">](https://www.buymeacoffee.com/davidkowalk)
+
 # Tabbed Minecraft Scripting
-This project aims at producing a more human readable version of Minecraft's mcfunction format. This documentation will explain the new syntax, the components of the compiler and contains a user guide to use this program to compile your project into a Minecraft datapack.
+This project aims at producing a more human readable version of Minecraft's mcfunction format. This documentation will explain the new syntax, the components of the transpiler and contains a user guide to use this program to compile your project into a Minecraft datapack.
 
 Please read the docs in [/docs/markdown/](https://github.com/davidkowalk/advanced_minecraft_scripting/blob/master/docs/markdown/).
 
 **Note**: This project was formerly called "advanced minecraft scripting". The abbreviation "ams" is a remnant of that name.
+
 
 ## The Language
 
@@ -32,7 +35,7 @@ execute store result score @s
     z1 run data get entity @s Pos[2] 1
 ```
 
-Parsed through the compiler this is assembled into this valid mcfunction code.
+Parsed through the transpiler this is assembled into this valid mcfunction code.
 
 ```mcfunction
 execute store result score @s x1 run data get entity @s Pos[0] 1

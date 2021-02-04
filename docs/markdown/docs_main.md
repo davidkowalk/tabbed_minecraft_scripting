@@ -1,5 +1,5 @@
 # Tabbed Minecraft Scripting
-This project aims at producing a more human readable version of Minecraft's mcfunction format. This documentation will explain the new syntax, the components of the compiler and contains a user guide to use this program to compile your project into a Minecraft datapack.
+This project aims at producing a more human readable version of Minecraft's mcfunction format. This documentation will explain the new syntax, the components of the transpiler and contains a user guide to use this program to compile your project into a Minecraft datapack.
 
 **Overview**
 
@@ -24,7 +24,7 @@ The TMS scripting language is based on the mcfunction syntax. The new syntax sim
 
 ### The Child System
 
-Whenever the compiler finds an line of code indented with a **tab** or a **space** it will interpret this as a child to the previous line of code with one less indent. Whenever a command is a child it's parent is simply prepended.
+Whenever the transpiler finds an line of code indented with a **tab** or a **space** it will interpret this as a child to the previous line of code with one less indent. Whenever a command is a child it's parent is simply prepended.
 
 **Example:**
 ```mcfunction
@@ -34,7 +34,7 @@ execute store result score @s
     z1 run data get entity @s Pos[2] 1
 ```
 
-Parsed through the compiler this is assembled into this valid mcfunction code.
+Parsed through the transpiler this is assembled into this valid mcfunction code.
 
 ```mcfunction
 execute store result score @s x1 run data get entity @s Pos[0] 1
@@ -91,14 +91,14 @@ Will produce a warning.
 
 ## Usage
 
-There are many different options to either integrate the compiler into your own application or directly use it as an application. This section will focus on the former.
+There are many different options to either integrate the transpiler into your own application or directly use it as an application. This section will focus on the former.
 
 ### Visual Interface
 
 Simply run ``interface.py`` with python and press "Load and Compile File". You will be prompted with a read path to select. Afterwards the program may briefly freeze but you will then be prompted with a save dialog. Select where you want to save the compiled file to and press "Save".
 
 ### Run as an import
-Import the compiler into your program and run it with an input and an output path.:
+Import the transpiler into your program and run it with an input and an output path.:
 ```python
 from interface import compile
 compile(input_path, output_path)
@@ -135,7 +135,7 @@ ams -p [project file] -i [filename(s)] -o [filename(s)]
 |    -h    | Shows help prompt. Aliases are `--h` or `-help`.
 |    -p    | Creates configuration file which can be used by -c
 |    -c    | Takes a path to a configuration file. See the config file section for more info.
-|    -i    | Takes a single input file, that will be passed through the compiler. Will be ignored if `-c` is supplied.
+|    -i    | Takes a single input file, that will be passed through the transpiler. Will be ignored if `-c` is supplied.
 |    -o    | Takes a name for a single output file. -i is required. If no output file is supplied the transpiler will prepend "out_" infront of the path supplied with `-i`.
 |    -d    | If flag is set the transpiler will show debug information. Alias: `--debug`
 

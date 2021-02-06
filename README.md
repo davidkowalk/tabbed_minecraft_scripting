@@ -1,4 +1,4 @@
-[<a href="https://www.buymeacoffee.com/davidkowalk"><img src="https://img.buymeacoffee.com/button-api/?text=Support Me!&emoji=☕&slug=davidkowalk&button_colour=FF5F5F&font_colour=ffffff&font_family=Arial&outline_colour=000000&coffee_colour=FFDD00"></a>](https://www.buymeacoffee.com/davidkowalk)
+[<img src="https://img.buymeacoffee.com/button-api/?text=Support Me!&emoji=☕&slug=davidkowalk&button_colour=FF5F5F&font_colour=ffffff&font_family=Arial&outline_colour=000000&coffee_colour=FFDD00">](https://www.buymeacoffee.com/davidkowalk)
 
 # Tabbed Minecraft Scripting
 This project aims at producing a more human readable version of Minecraft's mcfunction format. This documentation will explain the new syntax, the components of the transpiler and contains a user guide to use this program to compile your project into a Minecraft datapack.

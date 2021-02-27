@@ -94,6 +94,9 @@ This section lays out the grammar of all commands in the active or ignored comma
 ### Function grammar
 
 ```
+# A function is a list of commands followed by an end of the file.
+function: command_list EOF
+
 #A function consists of a list of commands with one or more entries
 command_list: command | command NEWLINE command_list
 
@@ -119,7 +122,7 @@ command:  attribute
         | teleport
         | tellraw
         | title
-        | ?
+        | ?                   #Down from here are the ignored commands
         | advancement
         | ban
         | ban-ip

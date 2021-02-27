@@ -87,14 +87,15 @@ class Lexer(object):
     The Lexical Analyzer turns a stream of Characters into a stream of Tokens by looking at the string and fitting it into a grammar
     """
 
-    def __init__(self, text, line = 0):
+    def __init__(self, text, line = 1):
         self.text = text
         self.pos = 0
+        self.line_pos = 0
         self.line = line
         self.current_char = self.text[self.pos]
 
     def error(self):
-        raise Exception(f"Invalid Character: {self.current_char} at {self.pos} in line {line}")
+        raise Exception(f"Invalid Character: {self.current_char} at {self.line_pos} in line {self.line}")
 
 
     def get_next_token(self):
@@ -108,6 +109,7 @@ class Lexer(object):
             # Detect end of line
             if self.current_char == "\n":
                 self.line += 1
+                self.line_pos = 0
                 self.advance()
                 return Token(NEWLINE, "NEWLINE")
 
@@ -131,6 +133,8 @@ class Lexer(object):
             if self.current_char == "{":
                 return self.get_nbt()
 
+            self.error()
+
 
         return Token(EOF, None)
 
@@ -142,6 +146,7 @@ class Lexer(object):
 
     def advance(self):
         self.pos += 1
+        self.line_pos += 1
 
         if self.out_of_bounds():
             self.current_char = None
@@ -167,7 +172,8 @@ class Lexer(object):
         result = ""
 
         # Collect all characters
-        while self.current_char is not None and (self.current_char.isalnum() or self.current_char in ["?", "-", "_", "."]):
+        #while self.current_char is not None and (self.current_char.isalnum() or self.current_char in ["?", "-", "_", "."]):
+        while self.current_char is not None and not self.current_char.isspace():
             result += self.current_char
             self.advance()
 
@@ -176,8 +182,16 @@ class Lexer(object):
 
     def get_target(self):
         target = ""
+        in_bracket = 0
 
-        while self.current_char.isalpha() or self.current_char == "@":
+        while self.current_char.isalpha() or self.current_char in ("@", "[") or (in_bracket > 0 and self.current_char != "\n"):
+
+            if self.current_char == "[":
+                in_bracket += 1
+
+            if self.current_char == "]":
+                in_bracket -= 1
+
             target += self.current_char
             self.advance()
 
@@ -202,6 +216,18 @@ class Lexer(object):
         self.advance()
 
         return Token(NBT, snbt)
+
+
+
+
+#from interpreter import print_stream
+#
+#func = """data modify entity @s name.text set value {"message": "{\"text\": \"hello\"}"}
+#say test
+#scoreboard players set @a[score = {}] obj 15
+#"""
+#
+#print_stream(func)
 
 
 def print_stream(string):

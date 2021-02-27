@@ -91,8 +91,64 @@ I decided that these commands are used too infrequently as to implement them.
 
 This section lays out the grammar of all commands in the active or ignored command list.
 
+### Function grammar
+
+```
+#A function consists of a list of commands with one or more entries
+command_list: command | command NEWLINE command_list
+
+# A command consists of one of these token trees
+command:  attribute
+        | bossbar
+        | clear
+        | data
+        | effect
+        | enchant
+        | execute
+        | function
+        | gamemode
+        | give
+        | kill
+        | list
+        | say
+        | scoreboard
+        | stop
+        | summon
+        | tag
+        | team
+        | teleport
+        | tellraw
+        | title
+        | ?
+        | advancement
+        | ban
+        | ban-ip
+        | defaultgamemode
+        | deop
+        | help
+        | kick
+        | locate
+        | locatebiome
+        | loot
+        | me
+        | msg
+        | op
+        | pardon
+        | pardon-ip
+        | publish
+        | save-all
+        | save-off
+        | save-on
+        | setidletimeout
+        | setworldspawn
+        | spectate
+        | spreadplayers
+        | whitelist
+        | empty
+```
+
 ---
-### Active commands
+### Active command syntax
 
 #### attribute
 
@@ -182,12 +238,12 @@ execute (
   positioned (<pos>|as <targets>) -> execute |
   rotated (<rot>|as <targets>) -> execute |
   store (result|success) (
-    block <targetPos> <path> <type> <scale> -> execute |
-    bossbar <id> (max|value) -> execute |
-    entity <target> <path> <type> <scale> -> execute |
-    score <targets> <objective> -> execute |
-    storage <target> <path> <type> <scale> -> execute |
-    )|
+    block <targetPos> <path> <type> <scale> |
+    bossbar <id> (max|value) |
+    entity <target> <path> <type> <scale> |
+    score <targets> <objective> |
+    storage <target> <path> <type> <scale> |
+    ) -> execute|
   (if|unless) (
     block (<pos> <block> | <start> <end> <destination> (all|masked)) |
     data (

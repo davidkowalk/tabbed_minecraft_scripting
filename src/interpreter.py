@@ -1,4 +1,4 @@
-INTEGER, ID, COMMAND, TARGET, NBT, NEWLINE, EOF = 'INTEGER', 'ID', 'COMMAND', 'TARGET', 'NBT', 'NEWLINE', 'EOF'
+INTEGER, ID, COMMAND, TARGET, ATTR, NBT, NEWLINE, EOF = 'INTEGER', 'ID', 'COMMAND', 'TARGET', 'ATTRIBUTE', 'NBT', 'NEWLINE', 'EOF'
 
 # This interpreter takes compiled files and executes the function provided by the user.
 
@@ -130,6 +130,9 @@ class Lexer(object):
             if self.current_char == "@":
                 return self.get_target()
 
+            if self.current_char == "[":
+                return self.get_attr()
+
             if self.current_char == "{":
                 return self.get_nbt()
 
@@ -184,7 +187,21 @@ class Lexer(object):
         target = ""
         in_bracket = 0
 
-        while self.current_char.isalpha() or self.current_char in ("@", "[") or (in_bracket > 0 and self.current_char != "\n"):
+        while self.current_char is not None and (self.current_char.isalpha() or self.current_char == "@"):
+
+            target += self.current_char
+            self.advance()
+
+        return Token(TARGET, target)
+
+    def get_attr(self):
+
+        attr_str = "["
+        in_bracket = 0
+
+        self.advance()
+
+        while (self.current_char is not None and self.current_char != "\n") and (self.current_char != "]" or in_bracket > 0):
 
             if self.current_char == "[":
                 in_bracket += 1
@@ -192,10 +209,14 @@ class Lexer(object):
             if self.current_char == "]":
                 in_bracket -= 1
 
-            target += self.current_char
+            attr_str += self.current_char
             self.advance()
 
-        return Token(TARGET, target)
+        if self.current_char == "]":
+            attr_str += self.current_char
+            self.advance()
+
+        return Token(ATTR, attr_str)
 
     def get_nbt(self):
 

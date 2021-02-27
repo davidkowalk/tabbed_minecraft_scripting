@@ -167,7 +167,43 @@ enchant <targets> <enchantment> [<level>]
 
 #### execute
 
-I'm procrastinating on this one.
+* `-> execute` represents the start of another subcommand.
+* `-> [execute]` represents the start of the next non-required subcommand.
+
+
+```
+execute (
+  align <axes> -> execute |
+  anchored <anchor> -> execute |
+  as <targets> -> execute |
+  at <targets> -> execute |
+  facing (<pos>|entity <targets> <anchor>) -> execute |
+  in <dimension> -> execute |
+  positioned (<pos>|as <targets>) -> execute |
+  rotated (<rot>|as <targets>) -> execute |
+  store (result|success) (
+    block <targetPos> <path> <type> <scale> -> execute |
+    bossbar <id> (max|value) -> execute |
+    entity <target> <path> <type> <scale> -> execute |
+    score <targets> <objective> -> execute |
+    storage <target> <path> <type> <scale> -> execute |
+    )|
+  (if|unless) (
+    block (<pos> <block> | <start> <end> <destination> (all|masked)) |
+    data (
+      block <sourcePos> <path>
+      entity <source> <path>
+      storage <source> <path>
+      )
+    entity <entities> |
+    predicate <predicate> |
+    score <target> <targetObjective> (
+      (<|<=|=|>|>=) <source> <sourceObjective> |
+      matches <range>
+      )) -> [execute]
+    run <command>
+  )
+```
 
 #### function
 

@@ -1,4 +1,4 @@
-INTEGER, ID, COMMAND, TARGET, ATTR, NBT, NEWLINE, EOF = 'INTEGER', 'ID', 'COMMAND', 'TARGET', 'ATTRIBUTE', 'NBT', 'NEWLINE', 'EOF'
+INTEGER, ID, COMMAND, TARGET, ATTR_BEGIN, ATTR_END, ASSIGN, COMMA, NBT, NEWLINE, EOF = 'INTEGER', 'ID', 'COMMAND', 'TARGET', 'ATTRIBUTE_START', 'ATTRIBUTE_END', 'ASSIGN', ',', 'NBT', 'NEWLINE', 'EOF'
 
 # This interpreter takes compiled files and executes the function provided by the user.
 
@@ -131,7 +131,16 @@ class Lexer(object):
                 return self.get_target()
 
             if self.current_char == "[":
-                return self.get_attr()
+                self.advance()
+                return Token(ATTR_BEGIN, "[")
+
+            if self.current_char == "]":
+                self.advance()
+                return Token(ATTR_END, "]")
+
+            if self.current_char == "=":
+                self.advance()
+                return Token(ASSIGN, "=")
 
             if self.current_char == "{":
                 return self.get_nbt()
@@ -194,29 +203,29 @@ class Lexer(object):
 
         return Token(TARGET, target)
 
-    def get_attr(self):
-
-        attr_str = "["
-        in_bracket = 0
-
-        self.advance()
-
-        while (self.current_char is not None and self.current_char != "\n") and (self.current_char != "]" or in_bracket > 0):
-
-            if self.current_char == "[":
-                in_bracket += 1
-
-            if self.current_char == "]":
-                in_bracket -= 1
-
-            attr_str += self.current_char
-            self.advance()
-
-        if self.current_char == "]":
-            attr_str += self.current_char
-            self.advance()
-
-        return Token(ATTR, attr_str)
+#    def get_attr(self):
+#
+#        attr_str = "["
+#        in_bracket = 0
+#
+#        self.advance()
+#
+#        while (self.current_char is not None and self.current_char != "\n") and (self.current_char != "]" or in_bracket > 0):
+#
+#            if self.current_char == "[":
+#                in_bracket += 1
+#
+#            if self.current_char == "]":
+#                in_bracket -= 1
+#
+#            attr_str += self.current_char
+#            self.advance()
+#
+#        if self.current_char == "]":
+#            attr_str += self.current_char
+#            self.advance()
+#
+#        return Token(ATTR, attr_str)
 
     def get_nbt(self):
 
@@ -260,3 +269,59 @@ def print_stream(string):
     while token.value is not None:
         token = lex.get_next_token()
         print(token)
+
+
+###############################################################################
+#                                                                             #
+#  PARSER                                                                     #
+#                                                                             #
+###############################################################################
+
+# Turns Token Stream into Tree Structure (Abstract Syntax Tree / AST)
+
+class AST(object):
+    pass
+
+class CommandList(AST):
+    """
+    Holds list of Commands in function
+    """
+    def __init__(self):
+        self.children = list()
+
+class Command(AST):
+    """
+    Holds Command with head (like "say") and operands (like "<message>")
+    """
+
+    def __init__(self, token, operands):
+        self.command_token = token
+        self.operands = operands # List of operands. May hold another command
+
+class Target(AST):
+    """
+    Holds target with identifier and attributes.
+    """
+
+    def __init__(self, token, attributes):
+        self.token = token
+        self.id = token.value
+        self.attr = attributes
+
+class Attribute(AST):
+
+    def __init__(self, token, attr):
+        self.token = token
+        self.attr = attr
+
+
+class Num(AST):
+    def __init__(self, token):
+        self.token = token
+        self.value = token.value
+
+class Parser(object):
+
+    def __init__(self, lexer):
+        self.lexer = lexer
+        self.current_token = self.lexer.get_next_token()

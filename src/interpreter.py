@@ -340,8 +340,8 @@ class CommandList(AST):
     """
     Holds list of Commands in function
     """
-    def __init__(self):
-        self.children = list()
+    def __init__(self, children = list()):
+        self.children = children
 
 class Command(AST):
     """
@@ -357,7 +357,7 @@ class Target(AST):
     Holds target with identifier and attributes.
     """
 
-    def __init__(self, token, attributes):
+    def __init__(self, token: Token, attributes: list):
         self.token = token
         self.id = token.value
         self.attr = attributes
@@ -373,6 +373,9 @@ class Num(AST):
     def __init__(self, token):
         self.token = token
         self.value = token.value
+
+class NoOp(AST):
+    pass
 
 class Parser(object):
 
@@ -392,3 +395,208 @@ class Parser(object):
         else:
             print(self.current_token.type, token_type)
             self.error()
+
+    # command wrappers
+
+    def function(self):
+        node = self.command_list()
+        return node
+
+    def comand_list(self):
+        pass
+
+    def command(self):
+
+        if self.current_token.type == COMMAND:
+            pass
+        else:
+            return self.empty()
+
+    #command elemennts
+
+    def target(self):
+        pass
+
+    def attribute_list(self):
+        pass
+
+    def attribute(self):
+        pass
+
+    def list(self):
+        pass
+
+    def list_items(self):
+        pass
+
+    def location(self):
+        pass
+
+    def rotation(self):
+        pass
+
+    def data_storage(self):
+        pass
+
+    def generic_data(self):
+        pass
+
+    def data_source(self):
+        pass
+
+    def empty(self):
+        return NoOp()
+
+    # execute being overloaded
+
+    def execute_command(self):
+        pass
+
+    # commands
+
+    def command_attribute(self):
+		pass
+
+	def command_bossbar(self):
+		pass
+
+	def command_clear(self):
+		pass
+
+	def command_data(self):
+		pass
+
+	def command_effect(self):
+		pass
+
+	def command_enchant(self):
+		pass
+
+	def command_execute(self):
+		pass
+
+	def command_function(self):
+		pass
+
+	def command_gamemode(self):
+		pass
+
+	def command_give(self):
+		pass
+
+	def command_kill(self):
+		pass
+
+	def command_list(self):
+        node = Command(self.current_token)
+		self.eat(COMMAND)
+        self.eat(NEWLINE)
+
+        return node
+
+	def command_say(self):
+		pass
+
+	def command_scoreboard(self):
+		pass
+
+	def command_stop(self):
+		pass
+
+	def command_summon(self):
+		pass
+
+	def command_tag(self):
+		pass
+
+	def command_team(self):
+		pass
+
+	def command_teleport(self):
+		pass
+
+	def command_tellraw(self):
+		pass
+
+	def command_title(self):
+		pass
+
+    #Ignored Commands
+
+	def command_advancement(self):
+		pass
+
+	def command_ban(self):
+		pass
+
+	def command_ban_ip(self):
+		pass
+
+	def command_defaultgamemode(self):
+		pass
+
+	def command_deop(self):
+		pass
+
+	def command_help(self):
+		pass
+
+	def command_kick(self):
+		pass
+
+	def command_locate(self):
+		pass
+
+	def command_locatebiome(self):
+		pass
+
+	def command_loot(self):
+		pass
+
+	def command_msg(self):
+		pass
+
+	def command_op(self):
+		pass
+
+	def command_pardon(self):
+		pass
+
+	def command_pardon_ip(self):
+		pass
+
+	def command_publish(self):
+		pass
+
+	def command_save_all(self):
+		pass
+
+	def command_save_off(self):
+		pass
+
+	def command_save_on(self):
+		pass
+
+	def command_setidletimeout(self):
+		pass
+
+	def command_setworldspawn(self):
+		pass
+
+	def command_spectate(self):
+		pass
+
+	def command_spreadplayers(self):
+		pass
+
+	def command_whitelist(self):
+		pass
+
+	def command_empty(self):
+		pass
+
+    #==================================================================
+    #Parser
+
+    def parser(self):
+        pass

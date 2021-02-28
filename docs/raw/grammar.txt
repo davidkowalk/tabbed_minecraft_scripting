@@ -9,8 +9,6 @@ Terminals:
 - ID
 - COMMA
 - NEWLINE
-
-# TODO
 - FLOAT
 - BOOLEAN
 - COMPARISON
@@ -73,7 +71,7 @@ command:  attribute
         | empty
 
 
-target: TARGET | TARGET ATTR_BEGIN attribute_list* ATTR_END
+target: (TARGET | ID) | (TARGET | ID) ATTR_BEGIN attribute_list* ATTR_END
 
 attribute_list: attribute | attribute COMMA attribute_list
 
@@ -89,7 +87,7 @@ rotation: FLOAT FLOAT
 
 data_storage: ID (location | target | ID)
 
-generic_data: (ID | INTEGER | FLOAT | list | NBT)
+generic_data: (ID | INTEGER | FLOAT | BOOLEAN | list | NBT)
 
 data_source: ID data_storage ID | ID generic_data
 

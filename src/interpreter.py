@@ -1,4 +1,6 @@
-INTEGER, ID, COMMAND, TARGET, ATTR_BEGIN, ATTR_END, ASSIGN, COMMA, NBT, NEWLINE, EOF = 'INTEGER', 'ID', 'COMMAND', 'TARGET', 'ATTRIBUTE_START', 'ATTRIBUTE_END', 'ASSIGN', ',', 'NBT', 'NEWLINE', 'EOF'
+ID, COMMAND, TARGET, NBT, NEWLINE, EOF = 'ID', 'COMMAND', 'TARGET', 'NBT', 'NEWLINE', 'EOF'
+ATTR_BEGIN, ATTR_END, ASSIGN, COMMA, OPERATION, NOT = 'ATTRIBUTE_START', 'ATTRIBUTE_END', 'ASSIGN', ',', 'OPERATION', 'NOT'
+INTEGER, FLOAT, RANGE, BOOLEAN = 'INTEGER', 'FLOAT', 'RANGE', 'BOOL'
 
 # This interpreter takes compiled files and executes the function provided by the user.
 
@@ -33,6 +35,9 @@ class Token(object):
 
 # list reserved keywords (command keys)
 KEYWORDS = {
+    "true": Token(BOOLEAN, "true"),
+    "false": Token(BOOLEAN, "false"),
+
     "attribute": Token(COMMAND, "attribute"),
     "bossbar": Token(COMMAND, "bossbar"),
     "clear": Token(COMMAND, "clear"),
@@ -121,7 +126,7 @@ class Lexer(object):
 
             # Collects integers
             if self.current_char.isdigit():
-                return Token(INTEGER, self.get_integer())
+                return self.get_num()
 
             # Collect ids and keywords
             if self.current_char.isalpha():
@@ -140,10 +145,22 @@ class Lexer(object):
 
             if self.current_char == "=":
                 self.advance()
-                return Token(ASSIGN, "=")
+
+                if self.current_char == "=":
+                    self.advance()
+                    return Token(OPERATION, "==")
+                else:
+                    return Token(ASSIGN, "=")
 
             if self.current_char == "{":
                 return self.get_nbt()
+
+            if self.current_char in ("<", ">", "-", "+"):
+                return self.get_operation()
+
+            if self.current_char == "!":
+                self.advance()
+                return Token(NOT, "!")
 
             self.error()
 
@@ -165,27 +182,45 @@ class Lexer(object):
         else:
             self.current_char = self.text[self.pos]
 
+    def peek(self):
+
+
+        if self.pos+1 >= len(self.text):
+            return None
+        else:
+            return self.text[self.pos+1]
+
     def skip_whitespace(self):
 
         while self.current_char is not None and self.current_char.isspace() and self.current_char != "\n":
             self.advance()
 
-    def get_integer(self):
+    def get_num(self):
 
-        int_str = ""
+        num_str = ""
+        dots = 0
 
-        while self.current_char is not None and self.current_char.isdigit():
-            int_str += self.current_char
+        while self.current_char is not None and (self.current_char.isdigit() or self.current_char == "."):
+
+            if self.current_char == ".":
+                dots += 1
+
+            num_str += self.current_char
             self.advance()
 
-        return int(int_str)
+        if dots == 0:
+            return Token(INTEGER, int(num_str))
+        elif dots == 1:
+            return Token(FLOAT, float(num_str))
+        elif dots == 2:
+            return Token(RANGE, num_str)
 
     def get_id(self):
         result = ""
 
         # Collect all characters
         #while self.current_char is not None and (self.current_char.isalnum() or self.current_char in ["?", "-", "_", "."]):
-        while self.current_char is not None and not self.current_char.isspace():
+        while self.current_char is not None and (self.current_char.isalnum() or self.current_char in ("-", "_", ":", ".")):
             result += self.current_char
             self.advance()
 
@@ -247,6 +282,24 @@ class Lexer(object):
 
         return Token(NBT, snbt)
 
+    def get_operation(self):
+
+        op = ""
+        allowed = ("<", ">", "=")
+
+        if self.current_char in allowed:
+            op += self.current_char
+
+        next_char = self.peek()
+
+        if next_char in allowed:
+            op += next_char
+            self.advance()
+
+        self.advance()
+
+        return Token(OPERATION, op)
+
 
 
 
@@ -255,6 +308,7 @@ class Lexer(object):
 #func = """data modify entity @s name.text set value {"message": "{\"text\": \"hello\"}"}
 #say test
 #scoreboard players set @a[score = {}] obj 15
+#scoreboard players operation @s obj >= @p obj
 #"""
 #
 #print_stream(func)
@@ -325,3 +379,16 @@ class Parser(object):
     def __init__(self, lexer):
         self.lexer = lexer
         self.current_token = self.lexer.get_next_token()
+
+    def error(self):
+        raise Exception("Parser Failure: Invalid Syntax.")
+
+    def eat(self, token_type):
+        """
+        Checks if current token fits expected syntax (ie. token type) and advances to the next token.
+        """
+        if self.current_token.type == token_type:
+            self.current_token = self.lexer.get_next_token()
+        else:
+            print(self.current_token.type, token_type)
+            self.error()

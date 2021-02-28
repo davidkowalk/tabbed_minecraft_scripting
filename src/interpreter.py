@@ -12,6 +12,7 @@ INTEGER, FLOAT, RANGE, BOOLEAN = 'INTEGER', 'FLOAT', 'RANGE', 'BOOL'
 
 # Converts String to Token Stream
 
+
 class Token(object):
     """
     Holds type and value of a Token.
@@ -26,12 +27,13 @@ class Token(object):
 
     def __str__(self):
         return "Token({type}, {value})".format(
-            type = repr(self.type),
-            value = self.value
+            type=self.type,
+            value=self.value
         )
 
     def __repr__(self):
         return self.__str__()
+
 
 # list reserved keywords (command keys)
 KEYWORDS = {
@@ -86,13 +88,14 @@ KEYWORDS = {
     "whitelist": Token(COMMAND, "whitelist")
 }
 
+
 class Lexer(object):
 
     """
     The Lexical Analyzer turns a stream of Characters into a stream of Tokens by looking at the string and fitting it into a grammar
     """
 
-    def __init__(self, text, line = 1):
+    def __init__(self, text, line=1):
         self.text = text
         self.pos = 0
         self.line_pos = 0
@@ -100,11 +103,10 @@ class Lexer(object):
         self.current_char = self.text[self.pos]
 
     def error(self):
-        raise Exception(f"Invalid Character: {self.current_char} at {self.line_pos} in line {self.line}")
-
+        raise Exception(
+            f"Invalid Character: {self.current_char} at {self.line_pos} in line {self.line}")
 
     def get_next_token(self):
-
         """
         Generates a stream of Tokens from a String
         """
@@ -164,9 +166,7 @@ class Lexer(object):
 
             self.error()
 
-
         return Token(EOF, None)
-
 
     # Utility Functions
 
@@ -183,7 +183,6 @@ class Lexer(object):
             self.current_char = self.text[self.pos]
 
     def peek(self):
-
 
         if self.pos+1 >= len(self.text):
             return None
@@ -219,7 +218,7 @@ class Lexer(object):
         result = ""
 
         # Collect all characters
-        #while self.current_char is not None and (self.current_char.isalnum() or self.current_char in ["?", "-", "_", "."]):
+        # while self.current_char is not None and (self.current_char.isalnum() or self.current_char in ["?", "-", "_", "."]):
         while self.current_char is not None and (self.current_char.isalnum() or self.current_char in ("-", "_", ":", ".")):
             result += self.current_char
             self.advance()
@@ -301,17 +300,15 @@ class Lexer(object):
         return Token(OPERATION, op)
 
 
-
-
 #from interpreter import print_stream
 #
-#func = """data modify entity @s name.text set value {"message": "{\"text\": \"hello\"}"}
-#say test
-#scoreboard players set @a[score = {}] obj 15
-#scoreboard players operation @s obj >= @p obj
-#"""
+# func = """data modify entity @s name.text set value {"message": "{\"text\": \"hello\"}"}
+# say test
+# scoreboard players set @a[score = {}] obj 15
+# scoreboard players operation @s obj >= @p obj
+# """
 #
-#print_stream(func)
+# print_stream(func)
 
 
 def print_stream(string):
@@ -336,12 +333,15 @@ def print_stream(string):
 class AST(object):
     pass
 
+
 class CommandList(AST):
     """
     Holds list of Commands in function
     """
-    def __init__(self, children = list()):
+
+    def __init__(self, children=list()):
         self.children = children
+
 
 class Command(AST):
     """
@@ -350,7 +350,8 @@ class Command(AST):
 
     def __init__(self, token, operands):
         self.command_token = token
-        self.operands = operands # List of operands. May hold another command
+        self.operands = operands  # List of operands. May hold another command
+
 
 class Target(AST):
     """
@@ -361,6 +362,7 @@ class Target(AST):
         self.token = token
         self.id = token.value
         self.attr = attributes
+
 
 class Attribute(AST):
 
@@ -374,8 +376,10 @@ class Num(AST):
         self.token = token
         self.value = token.value
 
+
 class NoOp(AST):
     pass
+
 
 class Parser(object):
 
@@ -385,6 +389,10 @@ class Parser(object):
 
     def error(self):
         raise Exception("Parser Failure: Invalid Syntax.")
+
+    def generic_command_exception(self):
+        raise Exception(
+            f"PARSER FAILURE!\nThe parser encountered an unknown function: {self.current_token.value}\nPlease file a bug report at https://github.com/davidkowalk/tabbed_minecraft_scripting/issues")
 
     def eat(self, token_type):
         """
@@ -402,17 +410,25 @@ class Parser(object):
         node = self.command_list()
         return node
 
-    def comand_list(self):
-        pass
+    def command_list(self):
+        node = [command()]
+
+        if self.current_token.type == command:
+            node += command_list()
+
+        return node
 
     def command(self):
 
         if self.current_token.type == COMMAND:
-            pass
+            method_name = "mc_command_"+self.current_token.value
+            mc_method = geattr(self, method_name,
+                               self.generic_command_exception)
+            return mc_method()
         else:
             return self.empty()
 
-    #command elemennts
+    # command elemennts
 
     def target(self):
         pass
@@ -454,149 +470,149 @@ class Parser(object):
 
     # commands
 
-    def command_attribute(self):
-		pass
+    def mc_command_attribute(self):
+        pass
 
-	def command_bossbar(self):
-		pass
+    def mc_command_bossbar(self):
+        pass
 
-	def command_clear(self):
-		pass
+    def mc_command_clear(self):
+        pass
 
-	def command_data(self):
-		pass
+    def mc_command_data(self):
+        pass
 
-	def command_effect(self):
-		pass
+    def mc_command_effect(self):
+        pass
 
-	def command_enchant(self):
-		pass
+    def mc_command_enchant(self):
+        pass
 
-	def command_execute(self):
-		pass
+    def mc_command_execute(self):
+        pass
 
-	def command_function(self):
-		pass
+    def mc_command_function(self):
+        pass
 
-	def command_gamemode(self):
-		pass
+    def mc_command_gamemode(self):
+        pass
 
-	def command_give(self):
-		pass
+    def mc_command_give(self):
+        pass
 
-	def command_kill(self):
-		pass
+    def mc_command_kill(self):
+        pass
 
-	def command_list(self):
+    def mc_command_list(self):
         node = Command(self.current_token)
-		self.eat(COMMAND)
+        self.eat(COMMAND)
         self.eat(NEWLINE)
 
         return node
 
-	def command_say(self):
-		pass
+    def mc_command_say(self):
+        pass
 
-	def command_scoreboard(self):
-		pass
+    def mc_command_scoreboard(self):
+        pass
 
-	def command_stop(self):
-		pass
+    def mc_command_stop(self):
+        pass
 
-	def command_summon(self):
-		pass
+    def mc_command_summon(self):
+        pass
 
-	def command_tag(self):
-		pass
+    def mc_command_tag(self):
+        pass
 
-	def command_team(self):
-		pass
+    def mc_command_team(self):
+        pass
 
-	def command_teleport(self):
-		pass
+    def mc_command_teleport(self):
+        pass
 
-	def command_tellraw(self):
-		pass
+    def mc_command_tellraw(self):
+        pass
 
-	def command_title(self):
-		pass
+    def mc_command_title(self):
+        pass
 
-    #Ignored Commands
+    # Ignored Commands
 
-	def command_advancement(self):
-		pass
+    def mc_command_advancement(self):
+        pass
 
-	def command_ban(self):
-		pass
+    def mc_command_ban(self):
+        pass
 
-	def command_ban_ip(self):
-		pass
+    def mc_command_ban_ip(self):
+        pass
 
-	def command_defaultgamemode(self):
-		pass
+    def mc_command_defaultgamemode(self):
+        pass
 
-	def command_deop(self):
-		pass
+    def mc_command_deop(self):
+        pass
 
-	def command_help(self):
-		pass
+    def mc_command_help(self):
+        pass
 
-	def command_kick(self):
-		pass
+    def mc_command_kick(self):
+        pass
 
-	def command_locate(self):
-		pass
+    def mc_command_locate(self):
+        pass
 
-	def command_locatebiome(self):
-		pass
+    def mc_command_locatebiome(self):
+        pass
 
-	def command_loot(self):
-		pass
+    def mc_command_loot(self):
+        pass
 
-	def command_msg(self):
-		pass
+    def mc_command_msg(self):
+        pass
 
-	def command_op(self):
-		pass
+    def mc_command_op(self):
+        pass
 
-	def command_pardon(self):
-		pass
+    def mc_command_pardon(self):
+        pass
 
-	def command_pardon_ip(self):
-		pass
+    def mc_command_pardon_ip(self):
+        pass
 
-	def command_publish(self):
-		pass
+    def mc_command_publish(self):
+        pass
 
-	def command_save_all(self):
-		pass
+    def mc_command_save_all(self):
+        pass
 
-	def command_save_off(self):
-		pass
+    def mc_command_save_off(self):
+        pass
 
-	def command_save_on(self):
-		pass
+    def mc_command_save_on(self):
+        pass
 
-	def command_setidletimeout(self):
-		pass
+    def mc_command_setidletimeout(self):
+        pass
 
-	def command_setworldspawn(self):
-		pass
+    def mc_command_setworldspawn(self):
+        pass
 
-	def command_spectate(self):
-		pass
+    def mc_command_spectate(self):
+        pass
 
-	def command_spreadplayers(self):
-		pass
+    def mc_command_spreadplayers(self):
+        pass
 
-	def command_whitelist(self):
-		pass
+    def mc_command_whitelist(self):
+        pass
 
-	def command_empty(self):
-		pass
+    def mc_command_empty(self):
+        pass
 
-    #==================================================================
-    #Parser
+    # ==================================================================
+    # Parser
 
     def parser(self):
         pass

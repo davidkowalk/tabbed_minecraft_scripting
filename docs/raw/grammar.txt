@@ -1,0 +1,240 @@
+Terminals:
+- COMMAND
+- TARGET
+- ATTR_BEGIN
+- ATTR_END
+- ID
+- INTEGER
+- NBT
+- ID
+- COMMA
+- NEWLINE
+
+# TODO
+- FLOAT
+- BOOLEAN
+- COMPARISON
+
+
+-------------------------------------------------------------------
+
+
+function: command_list
+
+command_list: command | command NEWLINE command_list
+
+# A command consists of one of these token trees
+command:  attribute
+        | bossbar
+        | clear
+        | data
+        | effect
+        | enchant
+        | execute
+        | function
+        | gamemode
+        | give
+        | kill
+        | list
+        | say
+        | scoreboard
+        | stop
+        | summon
+        | tag
+        | team
+        | teleport
+        | tellraw
+        | title
+        | ?                   #Down from here are the ignored commands
+        | advancement
+        | ban
+        | ban-ip
+        | defaultgamemode
+        | deop
+        | help
+        | kick
+        | locate
+        | locatebiome
+        | loot
+        | me
+        | msg
+        | op
+        | pardon
+        | pardon-ip
+        | publish
+        | save-all
+        | save-off
+        | save-on
+        | setidletimeout
+        | setworldspawn
+        | spectate
+        | spreadplayers
+        | whitelist
+        | empty
+
+
+target: TARGET | TARGET ATTR_BEGIN attribute_list* ATTR_END
+
+attribute_list: attribute | attribute COMMA attribute_list
+
+attribute: ID ASSIGN (ID | INTEGER | NBT)
+
+list: ATTR_BEGIN list_items ATTR_END
+
+list_items: generic_data | generic_data COMMA generic_data
+
+location: FLOAT FLOAT FLOAT
+
+rotation: FLOAT FLOAT
+
+data_storage: ID (location | target | ID)
+
+generic_data: (ID | INTEGER | FLOAT | list | NBT)
+
+data_source: ID data_storage ID | ID generic_data
+
+
+------------------------------------------------------------------
+
+# COMMANDS
+
+attribute: COMMAND target (ID FLOAT* | ID ID (FLOAT* | ID ID FLOAT ID | ID FLOAT*))
+
+bossbar: COMAND ID (ID ID | ID ID (ID (ID | FLOAT | BOOLEAN)*)*
+
+clear: COMMAND target ID INTEGER
+
+data: COMMAND (
+        ID data_storage (
+        ID FLOAT |
+        NBT |
+        ID ID (
+          data_source |
+          INTEGER data_source
+          data_storage ID
+        )
+      )
+    )
+
+
+effect: COMMAND
+
+enchant: target ID INTEGER
+
+execute: COMMAND execute_command
+
+function: COMMAND ID
+
+gamemode: COMMAND ID target
+
+give: COMMAND target ID INTEGER
+
+kill: COMMAND target
+
+list: COMAND
+
+say: COMMAND ID
+
+scoreboard: COMMAND (
+                      ID ID ID* | #objective
+                      ID ID (
+                        ID ID INTEGER
+                        target* |
+                        target ID (OPERATION target ID | INTEGER) |
+                        target ID*
+                      )
+                    )
+
+stop: COMMAND
+
+summon: COMMAND ID location NBT*
+
+tag: COMMAND target (ID ID | ID)
+
+team: COMMAND target ID ID*
+
+teleport: COMMAND target (target | location (rotation* | ID location | ID ID target ID*))
+
+tellraw: COMMAND target ID
+
+title: COMMAND target (ID | ID ID | ID FLOAT FLOAT FLOAT) #This matches the location but that would be really dirty
+
+?: COMMAND
+
+advancement:
+
+ban:
+
+ban-ip:
+
+defaultgamemode:
+
+deop:
+
+help:
+
+kick:
+
+locate:
+
+locatebiome:
+
+loot:
+
+msg:
+
+op:
+
+pardon:
+
+pardon-ip:
+
+publish:
+
+save-all:
+
+save-off:
+
+save-on:
+
+setidletimeout:
+
+setworldspawn:
+
+spectate:
+
+spreadplayers:
+
+whitelist:
+
+empty:
+
+
+# EXECUTE COMMANDS
+
+execute_command:  ID (
+                    ID execute_command |                                    #align, anchored, as, at, in
+                    (location | rotation | ID target ID*) execute_command | #facing, positioned, rotated
+                    ID ID (                                                 #store
+                      location ID ID FLOAT |       #block
+                      ID ID |                      #bossbar
+                      target ID ID FLOAT |         #entity, storage
+                      target ID |                  #score
+                    ) execute_command |
+                    ID (                                                    #if/unless
+                      location ID |                #block
+                      location location ID ID |    #blocks
+                      ID (                         #data
+                        location ID |  #block
+                        target ID |    #entity
+                        ID ID          #storage
+                      ) |
+                      target |                     #entity
+                      ID |                         #predicate
+                      target ID (                  #score
+                        COMPARISON target ID |
+                        ID RANGE
+                      )
+                    ) execute_command* |
+                    ID COMMAND
+                  )

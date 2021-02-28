@@ -1,0 +1,206 @@
+PATH: ( block <targetPos> | entity <target> | storage <target>)
+SRCPATH: (block <sourcePos> | entity <source> | storage <source>)
+          ID location | ID target | ID ID
+          ID (location | target | ID)
+
+value: (ID, INTEGER, FLOAT, list, NBT)
+
+data (
+  get PATH [<path>] [<scale>] |
+  merge PATH <nbt> |
+  modify PATH <targetPath> (
+
+    append  (from SRCPATH [<sourcePath>] | value <value>) |
+    merge   (from SRCPATH [<sourcePath>] | value <value>) |
+    prepend (from SRCPATH [<sourcePath>] | value <value>) |
+    set     (from SRCPATH [<sourcePath>] | value <value>) |
+
+    insert <index> (from SRCPATH [<sourcePath>] | value <value>) |
+    remove PATH <path>
+  )
+)
+
+
+COMMAND (
+  ID data_storage ID FLOAT |
+  ID data_storage NBT |
+  ID data_storage ID (
+     ID data_source |
+     ID INTEGER data_source |
+     ID data_storage ID
+  )
+)
+
+COMMAND (
+  ID data_storage (
+    ID FLOAT |
+    NBT |
+    ID ID (
+      data_source |
+      INTEGER data_source
+      data_storage ID
+    )
+  )
+)
+
+---------------------------------------------
+
+execute (
+  execute_command
+  )
+
+execute_command:
+
+align <axes> -> execute |
+
+anchored <anchor> -> execute |
+
+as <targets> -> execute |
+
+at <targets> -> execute |
+
+facing (<pos>|entity <targets> <anchor>) -> execute |
+
+in <dimension> -> execute |
+
+positioned (<pos>|as <targets>) -> execute |
+
+rotated (<rot>|as <targets>) -> execute |
+
+store (result|success) (
+  block <targetPos> <path> <type> <scale> |
+  bossbar <id> (max|value) |
+  entity <target> <path> <type> <scale> |
+  score <targets> <objective> |
+  storage <target> <path> <type> <scale> |
+  ) -> execute|
+
+(if|unless) (
+  block <pos> <block> |
+  blocks <start> <end> <destination> (all|masked) |
+  data (
+    block <sourcePos> <path>
+    entity <source> <path>
+    storage <source> <path>
+    )
+  entity <entities> |
+  predicate <predicate> |
+  score <target> <targetObjective> (
+    (<|<=|=|>|>=) <source> <sourceObjective> |
+    matches <range>
+    )) -> [execute]
+
+  run <command>
+
+# TODO make target accept playernames, add Operations, Comparisons, Range and Floats
+
+execute_command:  ID ID execute_command |                                    #align, anchored, as, at, in
+                  ID (location | rotation | ID target ID*) execute_command | #facing, positioned, rotated
+                  ID ID (                                                    #store
+                    ID location ID ID FLOAT |       #block
+                    ID ID ID |                      #bossbar
+                    ID target ID ID FLOAT |         #entity, storage
+                    ID target ID |                  #score
+                  ) execute_command |
+                  ID (                                                       # if/unless
+                    ID location ID |                #block
+                    ID location location ID ID |    #blocks
+                    ID (                            #data
+                      ID location ID |  #block
+                      ID target ID |    #entity
+                      ID ID ID          #storage
+                    ) |
+                    ID target |                     #entity
+                    ID ID |                         #predicate
+                    ID target ID (                  #target
+                      COMPARISON target ID |
+                      ID RANGE
+                    )
+                  ) execute_comand* |
+                  ID command                        #run
+
+execute_command:  ID (
+                    ID execute_command |                                    #align, anchored, as, at, in
+                    (location | rotation | ID target ID*) execute_command | #facing, positioned, rotated
+                    ID ID (                                                 #store
+                      location ID ID FLOAT |       #block
+                      ID ID |                      #bossbar
+                      target ID ID FLOAT |         #entity, storage
+                      target ID |                  #score
+                    ) execute_command |
+                    ID (                                                    #if/unless
+                      location ID |                #block
+                      location location ID ID |    #blocks
+                      ID (                         #data
+                        location ID |  #block
+                        target ID |    #entity
+                        ID ID          #storage
+                      ) |
+                      target |                     #entity
+                      ID |                         #predicate
+                      target ID (                  #score
+                        COMPARISON target ID |
+                        ID RANGE
+                      )
+                    ) execute_command* |
+                    ID COMMAND
+                  )
+
+--------------------------------------------------------------------------
+
+tag <targets> (
+  add <name> |
+  list |
+  remove <name> |
+  )
+
+COMMAND target ID ID*
+
+-------------------------------------------------------------------------
+
+scoreboard (
+  objective (
+    add <objective> <criterion> [<displayName>] |
+    list |
+    modify <objective> (displayname <displayName> | rendertype (hearts|integer)) |
+    remove <objective>
+    setdisplay <slot> [<objective>])|
+  player (
+    add <targets> <objective> <score> |
+    enable <targets> <objective> |
+    get <target> <objective> |
+    list [<target>] |
+    operation <targets> <targetObjective> <operation> <source> <sourceObjective> |
+    remove <targets> <objective> <score> |
+    reset <targets> [<objective>] |
+    set <targets> <objective> <score>
+    )
+  )
+
+COMMAND (
+  ID (        # objective
+    ID ID ID ID |       #add, modify
+    ID |                #list
+    ID ID |             #remove
+    ID ID ID |          #setdisplay
+  ) |
+  ID (        # player
+    ID ID ID INTEGER |      #add
+    ID target ID |          #enable, get
+    ID target* |            #list
+    ID target ID OPERATION target ID | # operation
+    ID target ID INTEGER |  #remove
+    ID target ID* |         #reset
+    ID target ID INTEGER    #set
+  )
+)
+
+COMMAND (
+  ID ID ID* | #objective
+  ID ID (
+    ID ID INTEGER
+    target* |
+    target ID (OPERATION target ID | INTEGER) |
+    target ID*
+  )
+)

@@ -248,7 +248,8 @@ execute (
     storage <target> <path> <type> <scale> |
     ) -> execute|
   (if|unless) (
-    block (<pos> <block> | <start> <end> <destination> (all|masked)) |
+    block <pos> <block> |
+    blocks <start> <end> <destination> (all|masked)) |
     data (
       block <sourcePos> <path>
       entity <source> <path>

@@ -358,7 +358,7 @@ class Target(AST):
     Holds target with identifier and attributes.
     """
 
-    def __init__(self, token: Token, attributes: list):
+    def __init__(self, token: Token, attributes: list=None):
         self.token = token
         self.id = token.value
         self.attr = attributes
@@ -366,8 +366,8 @@ class Target(AST):
 
 class Attribute(AST):
 
-    def __init__(self, token, attr):
-        self.token = token
+    def __init__(self, key, attr):
+        self.key = key
         self.attr = attr
 
 
@@ -387,8 +387,8 @@ class Parser(object):
         self.lexer = lexer
         self.current_token = self.lexer.get_next_token()
 
-    def error(self):
-        raise Exception("Parser Failure: Invalid Syntax.")
+    def error(self, expected):
+        raise Exception(f"Parser Failure: Invalid Syntax.\nExpected token type {expected} but got {self.current_token.type}")
 
     def generic_command_exception(self):
         raise Exception(
@@ -402,7 +402,7 @@ class Parser(object):
             self.current_token = self.lexer.get_next_token()
         else:
             print(self.current_token.type, token_type)
-            self.error()
+            self.error(token_type)
 
     # command wrappers
 
@@ -411,18 +411,22 @@ class Parser(object):
         return node
 
     def command_list(self):
-        node = [command()]
+        """
+        Returns a list of all commands
+        """
+        results = [self.command()]
 
-        if self.current_token.type == command:
-            node += command_list()
+        while self.current_token.type == NEWLINE:
+            self.eat(NEWLINE)
+            results.append(self.command())
 
-        return node
+        return results
 
     def command(self):
 
         if self.current_token.type == COMMAND:
             method_name = "mc_command_"+self.current_token.value
-            mc_method = geattr(self, method_name,
+            mc_method = getattr(self, method_name,
                                self.generic_command_exception)
             return mc_method()
         else:
@@ -431,182 +435,265 @@ class Parser(object):
     # command elemennts
 
     def target(self):
-        pass
+
+        token = self.current_token
+
+        if "@" in token.value:
+            self.eat(TARGET)
+        else:
+            self.eat(ID)
+
+        if not self.current_token.type == ATTR_BEGIN:
+            return Target(token)
+
+        self.eat(ATTR_BEGIN)
+        attributes = attribute_list()
+        self.eat(ATTR_END)
+
+        return Token(token, attributes)
+
 
     def attribute_list(self):
-        pass
+        attr_list = [attribute()]
+
+        if self.current_token.type == COMMA:
+            self.eat(COMMA)
+            attr_list += attribute_list
+
+        return attr_list
+
 
     def attribute(self):
-        pass
+
+        key_token = self.current_token
+        self.eat(ID)
+        self.eat(ASSIGN)
+
+        value_token = self.current_token
+
+        return Attribute(key_token, value_token)
+
 
     def list(self):
         pass
 
+
     def list_items(self):
         pass
+
 
     def location(self):
         pass
 
+
     def rotation(self):
         pass
+
 
     def data_storage(self):
         pass
 
+
     def generic_data(self):
         pass
+
 
     def data_source(self):
         pass
 
+
     def empty(self):
         return NoOp()
+
 
     # execute being overloaded
 
     def execute_command(self):
         pass
 
+
     # commands
 
     def mc_command_attribute(self):
         pass
 
+
     def mc_command_bossbar(self):
         pass
+
 
     def mc_command_clear(self):
         pass
 
+
     def mc_command_data(self):
         pass
+
 
     def mc_command_effect(self):
         pass
 
+
     def mc_command_enchant(self):
         pass
+
 
     def mc_command_execute(self):
         pass
 
+
     def mc_command_function(self):
         pass
+
 
     def mc_command_gamemode(self):
         pass
 
+
     def mc_command_give(self):
         pass
+
 
     def mc_command_kill(self):
         pass
 
+
     def mc_command_list(self):
-        node = Command(self.current_token)
+        node = Command(self.current_token, None)
         self.eat(COMMAND)
-        self.eat(NEWLINE)
 
         return node
+
 
     def mc_command_say(self):
         pass
 
+
     def mc_command_scoreboard(self):
         pass
+
 
     def mc_command_stop(self):
         pass
 
+
     def mc_command_summon(self):
         pass
+
 
     def mc_command_tag(self):
         pass
 
+
     def mc_command_team(self):
         pass
+
 
     def mc_command_teleport(self):
         pass
 
+
     def mc_command_tellraw(self):
         pass
 
+
     def mc_command_title(self):
         pass
+
 
     # Ignored Commands
 
     def mc_command_advancement(self):
         pass
 
+
     def mc_command_ban(self):
         pass
+
 
     def mc_command_ban_ip(self):
         pass
 
+
     def mc_command_defaultgamemode(self):
         pass
+
 
     def mc_command_deop(self):
         pass
 
+
     def mc_command_help(self):
         pass
+
 
     def mc_command_kick(self):
         pass
 
+
     def mc_command_locate(self):
         pass
+
 
     def mc_command_locatebiome(self):
         pass
 
+
     def mc_command_loot(self):
         pass
+
 
     def mc_command_msg(self):
         pass
 
+
     def mc_command_op(self):
         pass
+
 
     def mc_command_pardon(self):
         pass
 
+
     def mc_command_pardon_ip(self):
         pass
+
 
     def mc_command_publish(self):
         pass
 
+
     def mc_command_save_all(self):
         pass
+
 
     def mc_command_save_off(self):
         pass
 
+
     def mc_command_save_on(self):
         pass
+
 
     def mc_command_setidletimeout(self):
         pass
 
+
     def mc_command_setworldspawn(self):
         pass
+
 
     def mc_command_spectate(self):
         pass
 
+
     def mc_command_spreadplayers(self):
         pass
 
+
     def mc_command_whitelist(self):
         pass
+
 
     def mc_command_empty(self):
         pass
@@ -614,5 +701,11 @@ class Parser(object):
     # ==================================================================
     # Parser
 
-    def parser(self):
-        pass
+    def parse(self):
+        return self.function()
+
+def test_parser(string):
+    lex = Lexer(string)
+    parser = Parser(lex)
+
+    return parser.parse()

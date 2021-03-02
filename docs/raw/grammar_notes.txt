@@ -31,17 +31,14 @@ COMMAND (
   )
 )
 
-COMMAND (
-  ID data_storage (
-    ID FLOAT |
-    NBT |
-    ID ID (
-      data_source |
-      INTEGER data_source
-      data_storage ID
-    )
-  )
-)
+COMMAND ID data_storage ( ID FLOAT
+                        | NBT
+                        | ID ID ( data_source
+                                | INTEGER data_source
+                                | data_storage ID
+                                )
+                        )
+
 
 ---------------------------------------------
 
@@ -204,3 +201,13 @@ COMMAND (
     target ID*
   )
 )
+
+
+------------------------------------------------------------------------
+
+effect (
+  clear [<targets>] [<effect>] |
+  give <targets> <effect> [<seconds>] [<amplifier>] [<hideParticles>]
+  )
+
+COMMAND ID target (ID* | ID (number INTEGER BOOLEAN*)*)

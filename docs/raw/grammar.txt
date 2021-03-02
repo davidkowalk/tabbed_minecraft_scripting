@@ -104,17 +104,13 @@ bossbar: COMMAND ID ID ID (ID (ID | number | BOOLEAN)*)*
 
 clear: COMMAND target ID INTEGER
 
-data: COMMAND (
-        ID data_storage (
-        ID FLOAT |
-        NBT |
-        ID ID (
-          data_source |
-          INTEGER data_source
-          data_storage ID
-        )
-      )
-    )
+data: COMMAND ID data_storage ( ID number
+                              | NBT
+                              | ID ID ( data_source
+                                      | INTEGER data_source
+                                      | data_storage ID
+                                      )
+                              )
 
 
 effect: COMMAND

@@ -147,6 +147,10 @@ class Lexer(object):
                 self.advance()
                 return Token(ATTR_END, "]")
 
+            if self.current_char == ",":
+                self.advance()
+                return Token(COMMA, ",")
+
             if self.current_char == "=":
                 self.advance()
 
@@ -357,10 +361,10 @@ class Command(AST):
     def __str__(self):
 
         operand_value_list = ""
-        for operand in operands:
+        for operand in self.operands:
             operand_value_list += str(operand)+", "
 
-        return f"Command({self.command_token.value}, {operand_value_list[:-1]})"
+        return f"Command({self.command_token.value}, {operand_value_list[:-2]})"
 
     def __repr__(self):
         return self.__str__()
@@ -376,12 +380,30 @@ class Target(AST):
         self.id = token.value
         self.attr = attributes
 
+    def __str__(self):
+
+        attr_str = ""
+
+        if self.attr is None:
+            return f"Target({self.id})"
+
+        for attr in self.attr:
+            attr_str += str(attr)
+
+        return f"Target({self.id}[{attr_str}])"
+
 
 class Attribute(AST):
 
     def __init__(self, key, attr):
         self.key = key
         self.attr = attr
+
+    def __str__(self):
+        return f"Attribute({self.key.value}={self.attr.value})"
+
+    def __repr_(self):
+        return self.__str__()
 
 class Location(AST):
 
@@ -416,7 +438,7 @@ class Parser(object):
         self.current_token = self.lexer.get_next_token()
 
     def error(self, expected):
-        raise Exception(f"Parser Failure: Invalid Syntax.\nExpected token type {expected} but got {self.current_token.type}")
+        raise Exception(f"Parser Failure: Invalid Syntax.\nExpected token type {expected} but got {self.current_token.type} on token {self.current_token.value}")
 
     def generic_command_exception(self):
         raise Exception(
@@ -447,7 +469,7 @@ class Parser(object):
         """
         results = [self.command()]
 
-        while self.current_token.type == NEWLINE:
+        while self.current_token.type != EOF:
             self.eat(NEWLINE)
             results.append(self.command())
 
@@ -475,18 +497,23 @@ class Parser(object):
             return Target(token)
 
         self.eat(ATTR_BEGIN)
-        attributes = attribute_list()
+        attributes = self.attribute_list()
         self.eat(ATTR_END)
 
-        return Token(token, attributes)
+        return Target(token, attributes)
 
 
     def attribute_list(self):
-        attr_list = [attribute()]
+
+        if self.current_token.type == ATTR_END:
+            return list()
+
+        attr_list = [self.attribute()]
 
         if self.current_token.type == COMMA:
             self.eat(COMMA)
-            attr_list += attribute_list
+            # This is recoursive. Could Probably be solved with a while loop but I'm lazy
+            attr_list += self.attribute_list()
 
         return attr_list
 
@@ -494,10 +521,15 @@ class Parser(object):
     def attribute(self):
 
         key_token = self.current_token
+
+        if self.current_token.value == "tag": #Tag is parsed as command. This is pretty hacky. Don't do this
+            self.current_token.type = ID
+
         self.eat(ID)
         self.eat(ASSIGN)
 
         value_token = self.current_token
+        self.eat(ID, NBT)
 
         return Attribute(key_token, value_token)
 
@@ -601,8 +633,8 @@ class Parser(object):
     # commands
 
     def mc_command_attribute(self):
-        head = head()
-        operands = [target()]
+        head = self.head()
+        operands = [self.target()]
 
         #operands.append(self.current_token)
         #self.eat(ID)
@@ -617,19 +649,19 @@ class Parser(object):
 
                 if self.current_token.type == ID:
                     self.read_op(operands, ID)
-                    operands.append(number())
+                    operands.append(self.number())
                     self.read_op(operands, ID)
 
                 elif self.current_token.type in number_types:
-                    operands.append(number())
+                    operands.append(self.number())
 
 
             elif self.current_token.type in number_types:
-                operands.append(number())
+                operands.append(self.number())
 
 
         elif self.current_token.type in number_types:
-            operands.append(number())
+            operands.append(self.number())
 
         return Command(head, operands)
 
@@ -637,7 +669,7 @@ class Parser(object):
 
 
     def mc_command_bossbar(self):
-        head = head()
+        head = self.head()
 
         operands = [self.current_token]
         self.eat(ID)
@@ -652,40 +684,44 @@ class Parser(object):
                 operands.append(self.current_token)
                 self.eat(ID, BOOLEAN)
             elif self.current_token.type in number_types:
-                operands.append(number())
+                operands.append(self.number())
 
         return Command(head, operands)
 
 
     def mc_command_clear(self):
-        head = head()
+        head = self.head()
 
-        target = target()
+        target = self.target()
 
-        item = self.current_token
-        self.eat(ID)
+        ops = [target]
 
-        count = self.current_token
-        self.eat(INTEGER)
+        if self.current_token.type == ID:
+            ops.append(self.current_token)
+            self.eat(ID)
 
-        return Command(head, (target, item, count))
+            if self.current_token.type == INTEGER:
+                ops.append(self.current_token)
+                self.eat(INTEGER)
+
+        return Command(head, ops)
 
 
     def mc_command_data(self):
-        head = head()
+        head = self.head()
         operands = list()
         self.read_op(operands, ID)
 
-        operands.append(data_storage())
+        operands.append(self.data_storage())
 
         if self.current_token.type == ID:
             self.read_op(operands, ID)
 
-             if self.current_token.type == ID:
+            if self.current_token.type == ID:
                 self.read_op(operands, ID)
 
                 if self.current_token.type == INTEGER:
-                    operands.append(number())
+                    operands.append(self.number())
 
                 elif False: #data source or data storage
                     pass
@@ -693,7 +729,7 @@ class Parser(object):
                     self.error((INTEGER, FLOAT, ID))
 
             elif self.current_token.type in number_types:
-                operands.append(number())
+                operands.append(self.number())
 
         elif self.current_token.type == NBT:
             pass
@@ -703,7 +739,24 @@ class Parser(object):
 
 
     def mc_command_effect(self):
-        pass
+        head = self.head()
+        ops = list()
+
+        self.read_op(ops, ID)
+
+        ops.append(self.target())
+
+        if self.current_token.type == ID:
+            self.read_op(ops, ID)
+
+            if self.current_token.type in number_types:
+                ops.append(self.number())
+                self.read_op(ops, INTEGER)
+
+                if self.current_token.type == BOOLEAN:
+                    self.read_op(ops, BOOLEAN)
+
+        return Command(head, ops)
 
 
     def mc_command_enchant(self):
@@ -873,8 +926,50 @@ class Parser(object):
     def parse(self):
         return self.function()
 
-def test_parser(string):
+def run_parser(string):
     lex = Lexer(string)
     parser = Parser(lex)
 
     return parser.parse()
+
+def test_parser_validity(string):
+    lex = Lexer(string)
+    parser = Parser(lex)
+
+    try:
+        parser.parse()
+    except:
+        return False
+    else:
+        return True
+
+def run_parser_tests():
+    test_strings = {
+        "clear @s[tag=admin, score={CustomName:\"\"}] minecraft:stone 128": True,
+        "clear @s[]": True,
+        "clear @s": True,
+        "clear @s[] minecraft:stone": True,
+        "clear @s[] minecraft:stone 128": True,
+        "clear @s 64": False
+    }
+
+    successes = 0
+    failures = 0
+
+    for test in test_strings:
+        result = test_parser_validity(test)
+        print("[Test]", test, "->", result)
+
+        assertion = result == test_strings[test]
+        successes += assertion
+        failures += not assertion
+
+        if not assertion:
+            print(f"\033[1;31m[Warning] Test failed. Expected: {test_strings[test]}\033[0m")
+
+    if failures == 0:
+        print("\033[1;32mAll tests ran successfully.\033[0m")
+
+    else:
+        rate = round(successes / (successes+failures) * 1000)/10
+        print(f"\033[1;33m{rate}% of tests ran successfully\033[0m")

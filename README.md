@@ -134,4 +134,4 @@ Please report any issues you are having with the install.
 
 ### Updating
 
-To update the script to a newer version simpy download the git repository and replace your old `tms_compiler.py` with the newer verion of the file.
+To update the script to a newer version simpy download the git repository and replace your old `ams_compiler.py` with the newer verion of the file.

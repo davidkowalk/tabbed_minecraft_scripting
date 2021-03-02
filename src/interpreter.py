@@ -457,6 +457,15 @@ class Parser(object):
         list.append(self.current_token)
         self.eat(type)
 
+    def read_op_optional(self, list, type):
+
+        if self.current_token.type == type:
+            list.append(self.current_token)
+            self.current_token = self.lexer.get_next_token()
+            return True
+
+        return False
+
     # command wrappers
 
     def function(self):
@@ -624,6 +633,13 @@ class Parser(object):
         self.eat(COMMAND)
         return node
 
+    def single_operands_command(self, op_type):
+        head = self.head()
+        ops = (self.current_token)
+        self.eat(op_type)
+
+        return Command(head, op_type)
+
     # execute being overloaded
 
     def execute_command(self):
@@ -711,14 +727,11 @@ class Parser(object):
         head = self.head()
         operands = list()
         self.read_op(operands, ID)
-
         operands.append(self.data_storage())
 
-        if self.current_token.type == ID:
-            self.read_op(operands, ID)
+        if self.read_op_optional(operands, ID):
 
-            if self.current_token.type == ID:
-                self.read_op(operands, ID)
+            if self.read_op_optional(operands, ID):
 
                 if self.current_token.type == INTEGER:
                     operands.append(self.number())
@@ -732,8 +745,8 @@ class Parser(object):
                 operands.append(self.number())
 
         elif self.current_token.type == NBT:
-            pass
-
+            operands.append(self.current_token)
+            self.eat(NBT)
         else:
             self.error((ID, NBT))
 
@@ -746,21 +759,25 @@ class Parser(object):
 
         ops.append(self.target())
 
-        if self.current_token.type == ID:
-            self.read_op(ops, ID)
+        if self.read_op_optional(ops, ID):
 
             if self.current_token.type in number_types:
                 ops.append(self.number())
                 self.read_op(ops, INTEGER)
-
-                if self.current_token.type == BOOLEAN:
-                    self.read_op(ops, BOOLEAN)
+                self.read_op_optional(ops, BOOLEAN)
 
         return Command(head, ops)
 
 
     def mc_command_enchant(self):
-        pass
+        head = self.head()
+        ops = list()
+
+        ops.append(target())
+        self.read_op(ops, ID)
+        self.read_op_optional(ops, INTEGER)
+
+        return Command(head, ops)
 
 
     def mc_command_execute(self):
@@ -768,19 +785,39 @@ class Parser(object):
 
 
     def mc_command_function(self):
-        pass
+
+        return self.single_operands_command(ID)
 
 
     def mc_command_gamemode(self):
-        pass
+        head = self.head()
+        ops = list()
+
+        self.read_op(ops, ID)
+        ops.append(self.target())
+
+        return Command(head, ops)
 
 
     def mc_command_give(self):
-        pass
+        head = self.head()
+
+        ops = list()
+
+        ops.append(self.target())
+        self.read_op(ID)
+        self.read_op_optional(INTEGER)
+
+        return Command(head, ops)
 
 
     def mc_command_kill(self):
-        pass
+        head = self.head()
+        ops = list()
+
+        self.read_op(ops, ID)
+
+        return Command(head, ops)
 
 
     def mc_command_list(self):
@@ -788,7 +825,19 @@ class Parser(object):
 
 
     def mc_command_say(self):
-        pass
+        head = self.head()
+        ops = list()
+
+        while self.current_token.type in (ID, INTEGER, FLOAT, BOOLEAN, TARGET):
+
+            self.read_op_optional(ops, ID)
+            self.read_op_optional(ops, INTEGER)
+            self.read_op_optional(ops, FLOAT)
+            self.read_op_optional(ops, BOOLEAN)
+            self.read_op_optional(ops, NBT)
+
+            if self.current_token.type == TARGET:
+                ops.append(target())
 
 
     def mc_command_scoreboard(self):

@@ -115,7 +115,7 @@ data: COMMAND ID data_storage ( ID number
 
 effect: COMMAND
 
-enchant: target ID INTEGER
+enchant: target ID INTEGER*
 
 execute: COMMAND execute_command
 
@@ -123,13 +123,13 @@ function: COMMAND ID
 
 gamemode: COMMAND ID target
 
-give: COMMAND target ID INTEGER
+give: COMMAND target ID INTEGER*
 
 kill: COMMAND target
 
 list: COMAND
 
-say: COMMAND ID
+say: COMMAND (ID | number | BOOLEAN| NBT | target)** # All except target will be interpreted as Strings
 
 scoreboard: COMMAND (
                       ID ID ID* | #objective

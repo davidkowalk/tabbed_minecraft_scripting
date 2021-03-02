@@ -81,9 +81,9 @@ list: ATTR_BEGIN list_items ATTR_END
 
 list_items: generic_data | generic_data COMMA generic_data
 
-location: FLOAT FLOAT FLOAT
+location: number number number
 
-rotation: FLOAT FLOAT
+rotation: number number
 
 data_storage: ID (location | target | ID)
 
@@ -91,14 +91,16 @@ generic_data: (ID | INTEGER | FLOAT | BOOLEAN | list | NBT)
 
 data_source: ID data_storage ID | ID generic_data
 
+number: INTEGER | FLOAT
+
 
 ------------------------------------------------------------------
 
 # COMMANDS
 
-attribute: COMMAND target (ID FLOAT* | ID ID (FLOAT* | ID ID FLOAT ID | ID FLOAT*))
+attribute: COMMAND target (ID number* | ID ID (FLOAT* | ID ID number ID | ID FLOAT*))
 
-bossbar: COMAND ID (ID ID | ID ID (ID (ID | FLOAT | BOOLEAN)*)*
+bossbar: COMMAND ID ID ID (ID (ID | number | BOOLEAN)*)*
 
 clear: COMMAND target ID INTEGER
 

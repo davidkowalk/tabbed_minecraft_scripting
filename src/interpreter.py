@@ -2,6 +2,8 @@ ID, COMMAND, TARGET, NBT, NEWLINE, EOF = 'ID', 'COMMAND', 'TARGET', 'NBT', 'NEWL
 ATTR_BEGIN, ATTR_END, ASSIGN, COMMA, OPERATION, NOT = 'ATTRIBUTE_START', 'ATTRIBUTE_END', 'ASSIGN', ',', 'OPERATION', 'NOT'
 INTEGER, FLOAT, RANGE, BOOLEAN = 'INTEGER', 'FLOAT', 'RANGE', 'BOOL'
 
+
+number_types = (INTEGER, FLOAT)
 # This interpreter takes compiled files and executes the function provided by the user.
 
 ###############################################################################
@@ -352,6 +354,17 @@ class Command(AST):
         self.command_token = token
         self.operands = operands  # List of operands. May hold another command
 
+    def __str__(self):
+
+        operand_value_list = ""
+        for operand in operands:
+            operand_value_list += str(operand)+", "
+
+        return f"Command({self.command_token.value}, {operand_value_list[:-1]})"
+
+    def __repr__(self):
+        return self.__str__()
+
 
 class Target(AST):
     """
@@ -369,6 +382,21 @@ class Attribute(AST):
     def __init__(self, key, attr):
         self.key = key
         self.attr = attr
+
+class Location(AST):
+
+    def __init__(self, x, y, z):
+        self.x = x
+        self.y = y
+        self.z = z
+
+        self.raw = (x.value, y.value, z.value)
+
+class Rotation(AST):
+
+    def __init__(self, r, w):
+        self.r = r
+        self.w = w
 
 
 class Num(AST):
@@ -394,15 +422,18 @@ class Parser(object):
         raise Exception(
             f"PARSER FAILURE!\nThe parser encountered an unknown function: {self.current_token.value}\nPlease file a bug report at https://github.com/davidkowalk/tabbed_minecraft_scripting/issues")
 
-    def eat(self, token_type):
+    def eat(self, *token_type):
         """
         Checks if current token fits expected syntax (ie. token type) and advances to the next token.
         """
-        if self.current_token.type == token_type:
+        if self.current_token.type in token_type:
             self.current_token = self.lexer.get_next_token()
         else:
-            print(self.current_token.type, token_type)
             self.error(token_type)
+
+    def read_op(self, list, type):
+        list.append(self.current_token)
+        self.eat(type)
 
     # command wrappers
 
@@ -438,10 +469,7 @@ class Parser(object):
 
         token = self.current_token
 
-        if "@" in token.value:
-            self.eat(TARGET)
-        else:
-            self.eat(ID)
+        self.eat(TARGET, ID)
 
         if not self.current_token.type == ATTR_BEGIN:
             return Target(token)
@@ -475,19 +503,38 @@ class Parser(object):
 
 
     def list(self):
-        pass
+        self.eat(ATTR_BEGIN)
+        gen_list = [generic_data()]
 
+        while self.current_token.type == COMMA:
+            self.eat(COMMA)
+            gen_list.append(generic_data())
 
-    def list_items(self):
-        pass
+        self.eat(ATTR_END)
+
+        return gen_list
 
 
     def location(self):
-        pass
+        """
+        Colects 3 numbers and puts them into Location element
+        """
+        x = number()
+        y = number()
+        z = number()
+
+        return Location(x, y, z)
 
 
     def rotation(self):
-        pass
+        """
+        Collects 2 numbers and returns rotation element
+        """
+
+        r = number()
+        w = number()
+
+        return Rotation(r, w)
 
 
     def data_storage(self):
@@ -495,16 +542,55 @@ class Parser(object):
 
 
     def generic_data(self):
-        pass
+        """
+        Returns any ID, number, Boolean, list or NBT
+        """
+
+        if self.current_token.type in (ID, INTEGER, FLOAT, BOOLEAN, NBT):
+            data = self.current_token
+            self.eat(INTEGER, FLOAT, BOOLEAN, NBT)
+            return data
+
+        if self.current_token.type == ATTR_BEGIN:
+            return self.list()
+
+        self.error(ID, INTEGER, FLOAT, BOOLEAN, NBT, "LIST")
 
 
     def data_source(self):
-        pass
+
+        src = self.current_token
+        self.eat(ID)
+
+        storage = data_storage()
+
+        self.eat(ID)
+
+    def number(self):
+        """
+        Collects any Integers or Floats and returns Token
+        """
+
+        num = self.current_token
+
+        self.eat(INTEGER, FLOAT)
+
+        return num
+
+    def head(self):
+        token = self.current_token
+        self.eat(COMMAND)
+        return token
 
 
     def empty(self):
         return NoOp()
 
+
+    def no_operands_command(self):
+        node = Command(self.current_token, None)
+        self.eat(COMMAND)
+        return node
 
     # execute being overloaded
 
@@ -515,19 +601,105 @@ class Parser(object):
     # commands
 
     def mc_command_attribute(self):
-        pass
+        head = head()
+        operands = [target()]
+
+        #operands.append(self.current_token)
+        #self.eat(ID)
+
+        self.read_op(operands, ID)
+
+        if self.current_token.type == ID:
+            self.read_op(operands, ID)
+
+            if self.current_token.type == ID:
+                self.read_op(operands, ID)
+
+                if self.current_token.type == ID:
+                    self.read_op(operands, ID)
+                    operands.append(number())
+                    self.read_op(operands, ID)
+
+                elif self.current_token.type in number_types:
+                    operands.append(number())
+
+
+            elif self.current_token.type in number_types:
+                operands.append(number())
+
+
+        elif self.current_token.type in number_types:
+            operands.append(number())
+
+        return Command(head, operands)
+
+
 
 
     def mc_command_bossbar(self):
-        pass
+        head = head()
+
+        operands = [self.current_token]
+        self.eat(ID)
+
+        self.read_op(operands, ID)
+        self.read_op(operands, ID)
+
+        if self.current_token.type == ID:
+            self.read_op(operands, ID)
+
+            if self.current_token.type in (ID, BOOLEAN):
+                operands.append(self.current_token)
+                self.eat(ID, BOOLEAN)
+            elif self.current_token.type in number_types:
+                operands.append(number())
+
+        return Command(head, operands)
 
 
     def mc_command_clear(self):
-        pass
+        head = head()
+
+        target = target()
+
+        item = self.current_token
+        self.eat(ID)
+
+        count = self.current_token
+        self.eat(INTEGER)
+
+        return Command(head, (target, item, count))
 
 
     def mc_command_data(self):
-        pass
+        head = head()
+        operands = list()
+        self.read_op(operands, ID)
+
+        operands.append(data_storage())
+
+        if self.current_token.type == ID:
+            self.read_op(operands, ID)
+
+             if self.current_token.type == ID:
+                self.read_op(operands, ID)
+
+                if self.current_token.type == INTEGER:
+                    operands.append(number())
+
+                elif False: #data source or data storage
+                    pass
+                else:
+                    self.error((INTEGER, FLOAT, ID))
+
+            elif self.current_token.type in number_types:
+                operands.append(number())
+
+        elif self.current_token.type == NBT:
+            pass
+
+        else:
+            self.error((ID, NBT))
 
 
     def mc_command_effect(self):
@@ -559,10 +731,7 @@ class Parser(object):
 
 
     def mc_command_list(self):
-        node = Command(self.current_token, None)
-        self.eat(COMMAND)
-
-        return node
+        return no_operands_command()
 
 
     def mc_command_say(self):
@@ -574,7 +743,7 @@ class Parser(object):
 
 
     def mc_command_stop(self):
-        pass
+        return no_operands_command()
 
 
     def mc_command_summon(self):
@@ -624,7 +793,7 @@ class Parser(object):
 
 
     def mc_command_help(self):
-        pass
+        return mc_command_list()
 
 
     def mc_command_kick(self):

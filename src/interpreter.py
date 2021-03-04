@@ -1,4 +1,4 @@
-ID, COMMAND, TARGET, NBT, NEWLINE, EOF = 'ID', 'COMMAND', 'TARGET', 'NBT', 'NEWLINE', 'EOF'
+STRING, COMMAND, TARGET, NBT, NEWLINE, EOF = 'STRING', 'COMMAND', 'TARGET', 'NBT', 'NEWLINE', 'EOF'
 ATTR_BEGIN, ATTR_END, ASSIGN, COMMA, OPERATION, NOT = 'ATTRIBUTE_START', 'ATTRIBUTE_END', 'ASSIGN', ',', 'OPERATION', 'NOT'
 INTEGER, FLOAT, RANGE, BOOLEAN = 'INTEGER', 'FLOAT', 'RANGE', 'BOOL'
 
@@ -230,7 +230,7 @@ class Lexer(object):
             self.advance()
 
         # If result is in known keywords, return Token of that, otherwise generate and return token of id
-        return KEYWORDS.get(result, Token(ID, result))
+        return KEYWORDS.get(result, Token(STRING, result))
 
     def get_target(self):
         target = ""
@@ -490,7 +490,11 @@ class Parser(object):
             method_name = "mc_command_"+self.current_token.value
             mc_method = getattr(self, method_name,
                                self.generic_command_exception)
-            return mc_method()
+
+            head = self.head()
+            ops = list()
+
+            return mc_method(head, ops, head, ops)
         else:
             return self.empty()
 
@@ -500,7 +504,7 @@ class Parser(object):
 
         token = self.current_token
 
-        self.eat(TARGET, ID)
+        self.eat(TARGET, STRING)
 
         if not self.current_token.type == ATTR_BEGIN:
             return Target(token)
@@ -532,13 +536,13 @@ class Parser(object):
         key_token = self.current_token
 
         if self.current_token.value == "tag": #Tag is parsed as command. This is pretty hacky. Don't do this
-            self.current_token.type = ID
+            self.current_token.type = STRING
 
-        self.eat(ID)
+        self.eat(STRING)
         self.eat(ASSIGN)
 
         value_token = self.current_token
-        self.eat(ID, NBT)
+        self.eat(STRING, NBT)
 
         return Attribute(key_token, value_token)
 
@@ -584,10 +588,10 @@ class Parser(object):
 
     def generic_data(self):
         """
-        Returns any ID, number, Boolean, list or NBT
+        Returns any STRING, number, Boolean, list or NBT
         """
 
-        if self.current_token.type in (ID, INTEGER, FLOAT, BOOLEAN, NBT):
+        if self.current_token.type in (STRING, INTEGER, FLOAT, BOOLEAN, NBT):
             data = self.current_token
             self.eat(INTEGER, FLOAT, BOOLEAN, NBT)
             return data
@@ -595,17 +599,17 @@ class Parser(object):
         if self.current_token.type == ATTR_BEGIN:
             return self.list()
 
-        self.error(ID, INTEGER, FLOAT, BOOLEAN, NBT, "LIST")
+        self.error(STRING, INTEGER, FLOAT, BOOLEAN, NBT, "LIST")
 
 
     def data_source(self):
 
         src = self.current_token
-        self.eat(ID)
+        self.eat(STRING)
 
         storage = data_storage()
 
-        self.eat(ID)
+        self.eat(STRING)
 
     def number(self):
         """
@@ -648,25 +652,25 @@ class Parser(object):
 
     # commands
 
-    def mc_command_attribute(self):
+    def mc_command_attribute(self, head, ops):
         head = self.head()
         operands = [self.target()]
 
         #operands.append(self.current_token)
-        #self.eat(ID)
+        #self.eat(STRING)
 
-        self.read_op(operands, ID)
+        self.read_op(operands, STRING)
 
-        if self.current_token.type == ID:
-            self.read_op(operands, ID)
+        if self.current_token.type == STRING:
+            self.read_op(operands, STRING)
 
-            if self.current_token.type == ID:
-                self.read_op(operands, ID)
+            if self.current_token.type == STRING:
+                self.read_op(operands, STRING)
 
-                if self.current_token.type == ID:
-                    self.read_op(operands, ID)
+                if self.current_token.type == STRING:
+                    self.read_op(operands, STRING)
                     operands.append(self.number())
-                    self.read_op(operands, ID)
+                    self.read_op(operands, STRING)
 
                 elif self.current_token.type in number_types:
                     operands.append(self.number())
@@ -684,37 +688,34 @@ class Parser(object):
 
 
 
-    def mc_command_bossbar(self):
+    def mc_command_bossbar(self, head, ops):
         head = self.head()
 
         operands = [self.current_token]
-        self.eat(ID)
+        self.eat(STRING)
 
-        self.read_op(operands, ID)
-        self.read_op(operands, ID)
+        self.read_op(operands, STRING)
+        self.read_op(operands, STRING)
 
-        if self.current_token.type == ID:
-            self.read_op(operands, ID)
+        if self.current_token.type == STRING:
+            self.read_op(operands, STRING)
 
-            if self.current_token.type in (ID, BOOLEAN):
+            if self.current_token.type in (STRING, BOOLEAN):
                 operands.append(self.current_token)
-                self.eat(ID, BOOLEAN)
+                self.eat(STRING, BOOLEAN)
             elif self.current_token.type in number_types:
                 operands.append(self.number())
 
         return Command(head, operands)
 
 
-    def mc_command_clear(self):
-        head = self.head()
+    def mc_command_clear(self, head, ops):
 
-        target = self.target()
+        ops.append(self.target())
 
-        ops = [target]
-
-        if self.current_token.type == ID:
+        if self.current_token.type == STRING:
             ops.append(self.current_token)
-            self.eat(ID)
+            self.eat(STRING)
 
             if self.current_token.type == INTEGER:
                 ops.append(self.current_token)
@@ -723,15 +724,13 @@ class Parser(object):
         return Command(head, ops)
 
 
-    def mc_command_data(self):
-        head = self.head()
-        operands = list()
-        self.read_op(operands, ID)
+    def mc_command_data(self, head, ops):
+        self.read_op(ops, STRING)
         operands.append(self.data_storage())
 
-        if self.read_op_optional(operands, ID):
+        if self.read_op_optional(ops, STRING):
 
-            if self.read_op_optional(operands, ID):
+            if self.read_op_optional(ops, STRING):
 
                 if self.current_token.type == INTEGER:
                     operands.append(self.number())
@@ -739,27 +738,25 @@ class Parser(object):
                 elif False: #data source or data storage
                     pass
                 else:
-                    self.error((INTEGER, FLOAT, ID))
+                    self.error((INTEGER, FLOAT, STRING))
 
             elif self.current_token.type in number_types:
-                operands.append(self.number())
+                ops.append(self.number())
 
         elif self.current_token.type == NBT:
-            operands.append(self.current_token)
+            ops.append(self.current_token)
             self.eat(NBT)
         else:
-            self.error((ID, NBT))
+            self.error((STRING, NBT))
 
 
-    def mc_command_effect(self):
-        head = self.head()
-        ops = list()
+    def mc_command_effect(self, head, ops):
 
-        self.read_op(ops, ID)
+        self.read_op(ops, STRING)
 
         ops.append(self.target())
 
-        if self.read_op_optional(ops, ID):
+        if self.read_op_optional(ops, STRING):
 
             if self.current_token.type in number_types:
                 ops.append(self.number())
@@ -769,68 +766,57 @@ class Parser(object):
         return Command(head, ops)
 
 
-    def mc_command_enchant(self):
-        head = self.head()
-        ops = list()
+    def mc_command_enchant(self, head, ops):
 
         ops.append(target())
-        self.read_op(ops, ID)
+        self.read_op(ops, STRING)
         self.read_op_optional(ops, INTEGER)
 
         return Command(head, ops)
 
 
-    def mc_command_execute(self):
+    def mc_command_execute(self, head, ops):
         pass
 
 
-    def mc_command_function(self):
+    def mc_command_function(self, head, ops):
 
-        return self.single_operands_command(ID)
+        return self.single_operands_command(STRING)
 
 
-    def mc_command_gamemode(self):
-        head = self.head()
-        ops = list()
+    def mc_command_gamemode(self, head, ops):
 
-        self.read_op(ops, ID)
+        self.read_op(ops, STRING)
         ops.append(self.target())
 
         return Command(head, ops)
 
 
-    def mc_command_give(self):
-        head = self.head()
-
-        ops = list()
+    def mc_command_give(self, head, ops):
 
         ops.append(self.target())
-        self.read_op(ID)
+        self.read_op(STRING)
         self.read_op_optional(INTEGER)
 
         return Command(head, ops)
 
 
-    def mc_command_kill(self):
-        head = self.head()
-        ops = list()
+    def mc_command_kill(self, head, ops):
 
-        self.read_op(ops, ID)
+        self.read_op(ops, STRING)
 
         return Command(head, ops)
 
 
-    def mc_command_list(self):
+    def mc_command_list(self, head, ops):
         return no_operands_command()
 
 
-    def mc_command_say(self):
-        head = self.head()
-        ops = list()
+    def mc_command_say(self, head, ops):
 
-        while self.current_token.type in (ID, INTEGER, FLOAT, BOOLEAN, TARGET):
+        while self.current_token.type in (STRING, INTEGER, FLOAT, BOOLEAN, TARGET):
 
-            self.read_op_optional(ops, ID)
+            self.read_op_optional(ops, STRING)
             self.read_op_optional(ops, INTEGER)
             self.read_op_optional(ops, FLOAT)
             self.read_op_optional(ops, BOOLEAN)
@@ -840,133 +826,199 @@ class Parser(object):
                 ops.append(target())
 
 
-    def mc_command_scoreboard(self):
+    def mc_command_scoreboard(self, head, ops):
         pass
 
 
-    def mc_command_stop(self):
+    def mc_command_stop(self, head, ops):
         return no_operands_command()
 
 
-    def mc_command_summon(self):
-        pass
+    def mc_command_summon(self, head, ops):
+
+        self.read_op(ops, STRING)
+        ops.append(self.location())
+        self.read_op_optional(NBT)
+
+        return Command(head, ops)
 
 
-    def mc_command_tag(self):
-        pass
+    def mc_command_tag(self, head, ops):
+
+        ops.append(self.target())
+
+        self.read_op(ops, STRING)
+        self.read_op_optional(ops, STRING)
+
+        return Command(head, ops)
 
 
-    def mc_command_team(self):
-        pass
+    def mc_command_team(self, head, ops):
+
+        self.read_op(ops, STRING)
+
+        if self.current_token.type in (TARGET, STRING):
+            ops.append(self.target())
+
+        elif self.read_op_optional(ops, STRING):
+
+            if self.current_token.type in (TARGET, STRING):
+                ops.append(self.target())
+            elif self.read_op_optional(ops, STRING):
+
+                if self.current_token.type in number_types:
+                    ops.append(self.number())
+
+        return Command(head, ops)
+
+    def mc_command_teleport(self, head, ops):
+
+        ops.append(self.target())
+
+        if self.current_token.type == TARGET or self.current_token.type == STRING: # TP to target
+            ops.append(self.target())
+        elif self.current_token in number_types: # TP To location
+            ops.append(self.location())
+
+            if self.read_op_optional(ops, STRING): # facing
+
+                if self.current_token.type == TARGET or self.current_token.type == STRING:
+                    ops.append(self.target())
+                    self.read_op_optional(ops, ID)
+                else:
+                    ops.append(self.location())
+
+            else:
+                ops.append(self.location())
 
 
-    def mc_command_teleport(self):
-        pass
+        return Command(head, ops)
 
 
-    def mc_command_tellraw(self):
-        pass
+    def mc_command_tellraw(self, head, ops):
+
+        ops.append(self.target())
+
+        if self.current_token.type == ATTR_BEGIN:
+            ops.append(self.list())
+        else:
+            ops.read_op(STRING, NBT)
+
+        return Command(head, ops)
 
 
-    def mc_command_title(self):
-        pass
+    def mc_command_title(self, head, ops):
+
+        ops.append(self.target())
+        self.read_op(ops, STRING)
+
+        if self.read_op_optional(STRING):
+            pass
+        elif and self.current_token.type in number_types:
+            ops.append(self.number())
+            ops.append(self.number())
+            ops.append(self.number())
+
+        return Command(head, ops)
+
+
 
 
     # Ignored Commands
 
-    def mc_command_advancement(self):
+    def mc_command_advancement(self, head, ops):
         pass
 
 
-    def mc_command_ban(self):
+    def mc_command_ban(self, head, ops):
         pass
 
 
-    def mc_command_ban_ip(self):
+    def mc_command_ban_ip(self, head, ops):
         pass
 
 
-    def mc_command_defaultgamemode(self):
+    def mc_command_defaultgamemode(self, head, ops):
         pass
 
 
-    def mc_command_deop(self):
+    def mc_command_deop(self, head, ops):
         pass
 
 
-    def mc_command_help(self):
+    def mc_command_help(self, head, ops):
         return mc_command_list()
 
 
-    def mc_command_kick(self):
+    def mc_command_kick(self, head, ops):
         pass
 
 
-    def mc_command_locate(self):
+    def mc_command_locate(self, head, ops):
         pass
 
 
-    def mc_command_locatebiome(self):
+    def mc_command_locatebiome(self, head, ops):
         pass
 
 
-    def mc_command_loot(self):
+    def mc_command_loot(self, head, ops):
         pass
 
 
-    def mc_command_msg(self):
+    def mc_command_msg(self, head, ops):
         pass
 
 
-    def mc_command_op(self):
+    def mc_command_op(self, head, ops):
         pass
 
 
-    def mc_command_pardon(self):
+    def mc_command_pardon(self, head, ops):
         pass
 
 
-    def mc_command_pardon_ip(self):
+    def mc_command_pardon_ip(self, head, ops):
         pass
 
 
-    def mc_command_publish(self):
+    def mc_command_publish(self, head, ops):
         pass
 
 
-    def mc_command_save_all(self):
+    def mc_command_save_all(self, head, ops):
         pass
 
 
-    def mc_command_save_off(self):
+    def mc_command_save_off(self, head, ops):
         pass
 
 
-    def mc_command_save_on(self):
+    def mc_command_save_on(self, head, ops):
         pass
 
 
-    def mc_command_setidletimeout(self):
+    def mc_command_setidletimeout(self, head, ops):
         pass
 
 
-    def mc_command_setworldspawn(self):
+    def mc_command_setworldspawn(self, head, ops):
         pass
 
 
-    def mc_command_spectate(self):
+    def mc_command_spectate(self, head, ops):
         pass
 
 
-    def mc_command_spreadplayers(self):
+    def mc_command_spreadplayers(self, head, ops):
         pass
 
 
-    def mc_command_whitelist(self):
+    def mc_command_whitelist(self, head, ops):
         pass
 
 
-    def mc_command_empty(self):
+    def mc_command_empty(self, head, ops):
         pass
 
     # ==================================================================

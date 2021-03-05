@@ -11,15 +11,34 @@ def test_parser_validity(string):
     else:
         return True
 
+def import_valid_test_strings():
+    #import os.path
+    import json
+
+    test_strings = dict()
+
+    with open("../docs/raw/test_strings.txt") as f:
+        lines = f.read().split("\n")
+
+    for line in lines:
+        if len(line) > 0:
+            test_strings[line] = True
+
+
+    return test_strings
+
+
 def run_parser_tests():
-    test_strings = {
-        "clear @s[tag=admin, score={CustomName:\"\"}] minecraft:stone 128": True,
-        "clear @s[]": True,
-        "clear @s": True,
-        "clear @s[] minecraft:stone": True,
-        "clear @s[] minecraft:stone 128": True,
-        "clear @s 64": False
-    }
+    #test_strings = {
+    #    "clear @s[tag=admin, score={CustomName:\"\"}] minecraft:stone 128": True,
+    #    "clear @s[]": True,
+    #    "clear @s": True,
+    #    "clear @s[] minecraft:stone": True,
+    #    "clear @s[] minecraft:stone 128": True,
+    #    "clear @s 64": False
+    #}
+
+    test_strings = import_valid_test_strings()
 
     successes = 0
     failures = 0

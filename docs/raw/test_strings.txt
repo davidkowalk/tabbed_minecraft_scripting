@@ -1,0 +1,86 @@
+attribute @s minecraft:generic.max_health get
+attribute @s minecraft:generic.max_health get 1
+attribute @s minecraft:generic.max_health get 1.0
+attribute @s minecraft:generic.max_health base get
+attribute @s minecraft:generic.max_health base get 3
+attribute @s minecraft:generic.max_health base get 3.5
+attribute @s minecraft:generic.max_health base set 15
+attribute @s minecraft:generic.max_health base set 2
+attribute @s minecraft:generic.max_health modifier add f81d4fae-7dec-11d0-a765-00a0c91e6bf6 TankyBoi 15 multiply
+attribute @s minecraft:generic.max_health modifier value get f81d4fae-7dec-11d0-a765-00a0c91e6bf6
+attribute @s minecraft:generic.max_health modifier value get f81d4fae-7dec-11d0-a765-00a0c91e6bf6 1
+attribute @s minecraft:generic.max_health modifier value get f81d4fae-7dec-11d0-a765-00a0c91e6bf6 1.1
+attribute @s minecraft:generic.max_health modifier remove f81d4fae-7dec-11d0-a765-00a0c91e6bf 6
+attribute @s minecraft:generic.max_health modifier add a-a-a-a Fragile -8 add
+bossbar add test Test
+bossbar get test visible
+bossbar list
+bossbar set test color yellow
+bossbar set test max 20
+bossbar set test name THISISATEST
+bossbar set test players @a[tag=tester, limit=1, sort=nearest]
+bossbar set test style notched_20
+bossbar set test value 20
+bossbar set test visible true
+bossbar remove test
+clear @a
+clear @p minecraft:stone
+clear @s minecraft:stone 1
+data get block 0 0 0
+data get block 0 0 0 Items
+data get get entity @s Inventory[0].Count 2
+data merge block 0 0 0  {Items: []}
+data modify block 0 0 0 append from block 0 0 0
+data modify block 0 0 0 append from block 0 0 0 Items
+data modify block 0 0 0 append from get entity @s Inventory[0].Count
+data modify block 0 0 0 remove Items
+data modify block 0 0 0 Items append block 0 0 0
+data modify block 0 0 0 Items append block 0 0 0 Items
+data modify block 0 0 0 Items append get entity @s Inventory[0].Count
+data modify block 0 0 0 Items append value {Slot: 4b, id:"minecraft:stone", Count: 1b}
+data modify get entity @s Inventory[0] append block 0 0 0
+data modify get entity @s Inventory[0] append block 0 0 0 Items
+data modify get entity @s Inventory[0] append get entity @s Inventory[0].Count
+data modify get entity @s Inventory[0] append value 3
+effect clear @a minecraft:blindness
+effect give @s minecraft:blindness
+effect give @s minecraft:blindness 15
+effect give @s minecraft:blindness 15 3
+effect give @s minecraft:blindness 15 1 true
+enchant @a minecraft:vanishing_curse
+enchant @a minecraft:efficiency 4
+function datapack:namespace/function
+gamemode survival @a
+give @s minecraft:acacia_boat
+give @s minecraft:acacia_boat 3
+kill @a
+list
+say Hello @a, how are you today? It's 15 degrees outside and I am sick.
+stop
+tag @s add tester
+tag @s list
+tag @s remove tester
+team add cool_team SLAYER_GURLS
+team empty cool_team
+team join cool_team
+team join cool_team @a
+team list
+team list cool_team
+team leave @a
+team modify cool_team color green
+team modify cool_team deathMessageVisibility never
+team modify cool_team seeFriendlyInvisibles true
+team modify cool_team friendlyFire false
+team remove cool_team
+teleport @a @s
+teleport @a 0 0 0
+teleport @a 0 64 0 facing 0 64 1
+teleport @a 0 64 0 facing entity @p[tag=tester]
+teleport @a 0 64 0 facing entity @p[tag=tester] head
+tellraw @a {"text":"boop"}
+tellraw @a [{"text":"boop"}]
+title @a clear
+title @a title {"text":"boop"}
+title @a title [{"text":"boop"}]
+title @a times 1 1 1
+title @a times 1.0 1.0 1.0

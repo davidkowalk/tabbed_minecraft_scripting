@@ -6,39 +6,59 @@ SRCPATH: (block <sourcePos> | entity <source> | storage <source>)
 value: (ID, INTEGER, FLOAT, list, NBT)
 
 data (
-  get PATH [<path>] [<scale>] |
-  merge PATH <nbt> |
-  modify PATH <targetPath> (
+  get data_storage [<path>] [<scale>] |
+  merge data_storage <nbt> |
+  modify data_storage <targetPath> (
+    insert <index> (from data_storage [<sourcePath>] | value <value>) |
+    remove data_storage <path>
 
-    append  (from SRCPATH [<sourcePath>] | value <value>) |
-    merge   (from SRCPATH [<sourcePath>] | value <value>) |
-    prepend (from SRCPATH [<sourcePath>] | value <value>) |
-    set     (from SRCPATH [<sourcePath>] | value <value>) |
-
-    insert <index> (from SRCPATH [<sourcePath>] | value <value>) |
-    remove PATH <path>
+    append  (from data_storage [<sourcePath>] | value <value>) |
+    merge   (from data_storage [<sourcePath>] | value <value>) |
+    prepend (from data_storage [<sourcePath>] | value <value>) |
+    set     (from data_storage [<sourcePath>] | value <value>) |
   )
 )
-
 
 COMMAND (
-  ID data_storage ID FLOAT |
-  ID data_storage NBT |
-  ID data_storage ID (
-     ID data_source |
-     ID INTEGER data_source |
-     ID data_storage ID
+  STRING data_storage (STRING number*)* |
+  STRING data_storage nbt |
+  ID data_storage STRING (
+    STRING INTEGER STRING (data_storage STRING* | generic_data) |
+    STRING data_storage STRING |
+
+    STRING STRING (data_storage STRING* | generic_data) |
+    STRING STRING (data_storage STRING* | generic_data) |
+    STRING STRING (data_storage STRING* | generic_data) |
+    STRING STRING (data_storage STRING* | generic_data)
   )
+
 )
 
-COMMAND ID data_storage ( ID FLOAT
-                        | NBT
-                        | ID ID ( data_source
-                                | INTEGER data_source
-                                | data_storage ID
-                                )
-                        )
 
+COMMAND STRING data_storage (
+  STRING number* |
+  NBT |
+  STRING STRING (
+    INTEGER STRING (data_storage STRING* | generic_data) | <-
+    data_storage STRING |
+
+    STRING (data_storage STRING* | generic_data)
+  )
+)*
+
+---------------------------------------------
+
+effect (
+  clear [<targets>] [<effect>] |
+  give <targets> <effect> [<seconds>] [<amplifier>] [<hideParticles>]
+  )
+
+  COMMAND (
+            STRING (target STRING*)* |
+            STRING target STRING (INTEGER (INTEGER BOOLEAN*)*)*
+            )
+
+COMMAND STRING (target (STRING (INTEGER (INTEGER BOOLEAN*)*)*)*)*
 
 ---------------------------------------------
 
@@ -202,6 +222,43 @@ COMMAND (
   )
 )
 
+
+------------------------------------------------------------------------
+
+team (
+  add <team> [<displayName>] |
+  empty <team> |
+  join <team> [<members>] |
+  leave <members> |
+  list [<team>] |
+  modify <team> <option> <value> |
+  remove <team>
+  )
+
+COMMAND(
+  STRING STRING STRING* |
+  STRING STRING |
+  STRING STRING target* |
+  STRING target |
+  STRING STRING* |
+  STRING STRING STRING (<value>) |
+  STRING STRING
+)
+
+COMMAND STRING (
+  STRING STRING* |
+  STRING target* |
+  STRING |
+  target |
+  STRING STRING (STRING | BOOLEAN)
+)*
+
+
+COMMAND STRING (
+  STRING (STRING (STRING | BOOLEAN)*)* |
+  STRING target* |
+  target |
+)*
 
 ------------------------------------------------------------------------
 

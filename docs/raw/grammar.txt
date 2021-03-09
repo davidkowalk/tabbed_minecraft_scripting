@@ -3,10 +3,10 @@ Terminals:
 - TARGET
 - ATTR_BEGIN
 - ATTR_END
-- ID
+- STRING
 - INTEGER
 - NBT
-- ID
+- STRING
 - COMMA
 - NEWLINE
 - FLOAT
@@ -71,11 +71,11 @@ command:  attribute
         | empty
 
 
-target: (TARGET | ID) | (TARGET | ID) ATTR_BEGIN attribute_list* ATTR_END
+target: (TARGET | STRING) | (TARGET | STRING) ATTR_BEGIN attribute_list* ATTR_END
 
 attribute_list: attribute | attribute COMMA attribute_list
 
-attribute: ID ASSIGN (ID | INTEGER | NBT)
+attribute: STRING ASSIGN (STRING | INTEGER | NBT)
 
 list: ATTR_BEGIN list_items ATTR_END
 
@@ -85,11 +85,13 @@ location: number number number
 
 rotation: number number
 
-data_storage: ID (location | target | ID)
+data_or_storage:  STRING (location | target | STRING)* | INTEGER | FLOAT | BOOLEAN | list | NBT
 
-generic_data: (ID | INTEGER | FLOAT | BOOLEAN | list | NBT)
+data_storage: STRING (location | target | STRING STRING*)
 
-data_source: ID data_storage ID | ID generic_data
+generic_data: (STRING | INTEGER | FLOAT | BOOLEAN | list | NBT)
+
+data_source: STRING data_storage STRING | STRING generic_data
 
 number: INTEGER | FLOAT
 
@@ -98,62 +100,72 @@ number: INTEGER | FLOAT
 
 # COMMANDS
 
-attribute: COMMAND target (ID number* | ID ID (FLOAT* | ID ID number ID | ID FLOAT*))
+attribute: COMMAND target (STRING number* | STRING STRING (FLOAT* | STRING STRING number STRING | STRING FLOAT*))
 
-bossbar: COMMAND ID ID ID (ID (ID | number | BOOLEAN)*)*
+bossbar: COMMAND STRING STRING STRING (STRING (STRING | number | BOOLEAN)*)*
 
-clear: COMMAND target ID INTEGER
+clear: COMMAND target STRING INTEGER
 
-data: COMMAND ID data_storage ( ID number
-                              | NBT
-                              | ID ID ( data_source
-                                      | INTEGER data_source
-                                      | data_storage ID
+data: COMMAND STRING data_storage ( STRING number* |
+                                    NBT |
+                                    STRING STRING (
+                                      INTEGER STRING (data_storage STRING* | generic_data) | <-
+                                      data_storage STRING |
+                                      STRING (data_storage STRING* | generic_data)
                                       )
-                              )
+                                    )*
 
 
-effect: COMMAND
+effect: COMMAND STRING (target (STRING (INTEGER (INTEGER BOOLEAN*)*)*)*)*
 
-enchant: target ID INTEGER*
+enchant: COMMAND target STRING INTEGER*
 
 execute: COMMAND execute_command
 
-function: COMMAND ID
+function: COMMAND STRING
 
-gamemode: COMMAND ID target
+gamemode: COMMAND STRING target
 
-give: COMMAND target ID INTEGER*
+give: COMMAND target STRING INTEGER*
 
 kill: COMMAND target
 
 list: COMAND
 
-say: COMMAND (ID | number | BOOLEAN| NBT | target)** # All except target will be interpreted as Strings
+say: COMMAND (STRING | number | BOOLEAN| NBT | target)** # All except target will be interpreted as Strings
 
 scoreboard: COMMAND (
-                      ID ID ID* | #objective
-                      ID ID (
-                        ID ID INTEGER
+                      STRING STRING STRING* | #objective
+                      STRING STRING (
+                        STRING STRING INTEGER
                         target* |
-                        target ID (OPERATION target ID | INTEGER) |
-                        target ID*
+                        target STRING (OPERATION target STRING | INTEGER) |
+                        target STRING*
                       )
                     )
 
 stop: COMMAND
 
-summon: COMMAND ID location NBT*
+summon: COMMAND STRING location NBT*
 
-tag: COMMAND target (ID ID | ID)
+tag: COMMAND target (STRING STRING | STRING)
 
-team: COMMAND target ID ID*
+team: COMMAND STRING ( STRING (STRING (STRING | BOOLEAN)*)*
+                     | STRING target*
+                     | target
+                     )*
 
-teleport: COMMAND target (target | location (rotation* | ID location | ID ID target ID*))
+teleport: COMMAND target ( target
+                         | location ( rotation
+                                    | STRING ( location
+                                             | STRING target STRING*
+                                             )
+                                    )
+                         )
 
-tellraw: COMMAND target ID
+tellraw: COMMAND target STRING
 
-title: COMMAND target (ID | ID ID | ID FLOAT FLOAT FLOAT) #This matches the location but that would be really dirty
+title: COMMAND target (STRING | STRING STRING | STRING FLOAT FLOAT FLOAT) #This matches the location but that would be really dirty
 
 ?: COMMAND
 
@@ -208,29 +220,29 @@ empty:
 
 # EXECUTE COMMANDS
 
-execute_command:  ID (
-                    ID execute_command |                                    #align, anchored, as, at, in
-                    (location | rotation | ID target ID*) execute_command | #facing, positioned, rotated
-                    ID ID (                                                 #store
-                      location ID ID FLOAT |       #block
-                      ID ID |                      #bossbar
-                      target ID ID FLOAT |         #entity, storage
-                      target ID |                  #score
+execute_command:  STRING (
+                    STRING execute_command |                                    #align, anchored, as, at, in
+                    (location | rotation | STRING target STRING*) execute_command | #facing, positioned, rotated
+                    STRING STRING (                                                 #store
+                      location STRING STRING FLOAT |       #block
+                      STRING STRING |                      #bossbar
+                      target STRING STRING FLOAT |         #entity, storage
+                      target STRING |                  #score
                     ) execute_command |
-                    ID (                                                    #if/unless
-                      location ID |                #block
-                      location location ID ID |    #blocks
-                      ID (                         #data
-                        location ID |  #block
-                        target ID |    #entity
-                        ID ID          #storage
+                    STRING (                                                    #if/unless
+                      location STRING |                #block
+                      location location STRING STRING |    #blocks
+                      STRING (                         #data
+                        location STRING |  #block
+                        target STRING |    #entity
+                        STRING STRING          #storage
                       ) |
                       target |                     #entity
-                      ID |                         #predicate
-                      target ID (                  #score
-                        COMPARISON target ID |
-                        ID RANGE
+                      STRING |                         #predicate
+                      target STRING (                  #score
+                        COMPARISON target STRING |
+                        STRING RANGE
                       )
                     ) execute_command* |
-                    ID COMMAND
+                    STRING COMMAND
                   )

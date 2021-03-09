@@ -6,7 +6,8 @@ def test_parser_validity(string):
 
     try:
         parser.parse()
-    except:
+    except Exception as e:
+        print(f"\033[1;33m{e}\033[0m")
         return False
     else:
         return True
@@ -44,8 +45,8 @@ def run_parser_tests():
     failures = 0
 
     for test in test_strings:
+        print("[Test]", test)
         result = test_parser_validity(test)
-        print("[Test]", test, "->", result)
 
         assertion = result == test_strings[test]
         successes += assertion
@@ -61,5 +62,73 @@ def run_parser_tests():
         rate = round(successes / (successes+failures) * 1000)/10
         print(f"\033[1;33m{rate}% of tests ran successfully\033[0m")
 
+def data_or_storage():
+
+    test_strings = {
+        "block 0 0 0": "data_storage",
+        "entity @e[type = armor_stand]": "data_storage",
+        "storage minecraft:database": "data_storage",
+        "storage minecraft:database": "data_storage",
+        "xyz": "generic_data",
+        "0": "generic_data",
+        "15": "generic_data",
+        "15.6": "generic_data",
+        "true": "generic_data",
+        "false": "generic_data",
+        "[a, b, c]": "generic_data",
+        "{\"text\":\"hello\"}": "generic_data"
+    }
+
+    success = 0
+    total = len(test_strings)
+
+    for string in test_strings:
+        lex = Lexer(string)
+        parser = Parser(lex)
+        ops = list()
+
+        try:
+            dtype = parser.data_or_storage(ops)
+            if dtype == test_strings[string]:
+                success += 1
+                print(f"\033[1;32m[Test Success]:\t{string}\033[0m")
+            else:
+                print(f"\033[1;33m[Test Failed]\033[0m:\t{string} \033[1;33m(got \"{dtype}\")\033[0m")
+        except Exception as e:
+            print(f"\033[1;31m[Catastrophic failure]: {string}\n{e}\033[0m")
+
+    rate = round(success / total * 1000)/10
+    print(f"\033[1;33m{rate}% of tests ran successfully\033[0m")
+
+
+def data_storage():
+    #TODO Automate checking these
+    #from interpreter import Target, Location
+
+    test_strings = [
+        "block 0 0 0",
+        "entity @s",
+        "entity @s[type=horse]",
+        "storage minecraft:database"
+    ]
+
+    for test_string in test_strings:
+        lex = Lexer(test_string)
+        parser = Parser(lex)
+
+        ops = list()
+
+        parser.data_storage(ops)
+
+        print(ops)
+
+
+def test_components():
+    pass
+
 if __name__ == '__main__':
+    #data_or_storage()
+    #data_storage()
     run_parser_tests()
+
+    #print("please uncomment a check in the code")

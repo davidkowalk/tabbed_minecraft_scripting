@@ -1,5 +1,5 @@
 # Compile to test_strings.txt
-# ams -i valid_test_commands.ams -o test_strings.txt 
+# ams -i valid_test_commands.ams -o test_strings.txt
 attribute @s minecraft:generic.max_health
   get
   get 1
@@ -44,33 +44,42 @@ data
   get
     block 0 0 0
     block 0 0 0 Items
-    get entity @s Inventory[0].Count 2
+    entity @s Inventory[0].Count 2
 
   merge block 0 0 0  {Items: []}
 
   modify
-    block 0 0 0
+
+
+    block 0 1 2 Items
+      insert 0
+        from
+          block 3 4 5
+          block 3 4 5 Items
+          entity @s Inventory[0].Count
+
+        value {Slot: 4b, id:"minecraft:stone", Count: 1b}
+
       append from
-        block 0 0 0
-        block 0 0 0 Items
-        get entity @s Inventory[0].Count
-
-      remove Items
-
-    block 0 0 0 Items
-      append
-        block 0 0 0
-        block 0 0 0 Items
-        get entity @s Inventory[0].Count
+        block 3 4 5
+        block 3 4 5 Items
+        entity @s Inventory[0].Count
 
       append value
         {Slot: 4b, id:"minecraft:stone", Count: 1b}
 
-    get entity @s Inventory[0]
-      append
-        block 0 0 0
-        block 0 0 0 Items
-        get entity @s Inventory[0].Count
+    entity @s Inventory[0]
+      insert 0
+        from
+          block 3 4 5
+          block 3 4 5 Items
+          entity @s Inventory[0].Count
+        value
+          {Slot: 4b, id:"minecraft:stone", Count: 1b}
+      append from
+        block 3 4 5
+        block 3 4 5 Items
+        entity @s Inventory[0].Count
 
       append value
         3

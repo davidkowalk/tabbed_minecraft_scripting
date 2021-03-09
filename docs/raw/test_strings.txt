@@ -1,4 +1,4 @@
-attribute @s minecraft:generic.max_health get
+attribute @s minecraft:generic.max_health get 
 attribute @s minecraft:generic.max_health get 1
 attribute @s minecraft:generic.max_health get 1.0
 attribute @s minecraft:generic.max_health base get
@@ -28,20 +28,24 @@ clear @p minecraft:stone
 clear @s minecraft:stone 1
 data get block 0 0 0
 data get block 0 0 0 Items
-data get get entity @s Inventory[0].Count 2
+data get entity @s Inventory[0].Count 2
 data merge block 0 0 0  {Items: []}
-data modify block 0 0 0 append from block 0 0 0
-data modify block 0 0 0 append from block 0 0 0 Items
-data modify block 0 0 0 append from get entity @s Inventory[0].Count
-data modify block 0 0 0 remove Items
-data modify block 0 0 0 Items append block 0 0 0
-data modify block 0 0 0 Items append block 0 0 0 Items
-data modify block 0 0 0 Items append get entity @s Inventory[0].Count
-data modify block 0 0 0 Items append value {Slot: 4b, id:"minecraft:stone", Count: 1b}
-data modify get entity @s Inventory[0] append block 0 0 0
-data modify get entity @s Inventory[0] append block 0 0 0 Items
-data modify get entity @s Inventory[0] append get entity @s Inventory[0].Count
-data modify get entity @s Inventory[0] append value 3
+data modify block 0 1 2 Items insert 0 from block 3 4 5
+data modify block 0 1 2 Items insert 0 from block 3 4 5 Items
+data modify block 0 1 2 Items insert 0 from entity @s Inventory[0].Count
+data modify block 0 1 2 Items insert 0 value {Slot: 4b, id:"minecraft:stone", Count: 1b}
+data modify block 0 1 2 Items append from block 3 4 5
+data modify block 0 1 2 Items append from block 3 4 5 Items
+data modify block 0 1 2 Items append from entity @s Inventory[0].Count
+data modify block 0 1 2 Items append value {Slot: 4b, id:"minecraft:stone", Count: 1b}
+data modify entity @s Inventory[0] insert 0 from block 3 4 5
+data modify entity @s Inventory[0] insert 0 from block 3 4 5 Items
+data modify entity @s Inventory[0] insert 0 from entity @s Inventory[0].Count
+data modify entity @s Inventory[0] insert 0 value {Slot: 4b, id:"minecraft:stone", Count: 1b}
+data modify entity @s Inventory[0] append from block 3 4 5
+data modify entity @s Inventory[0] append from block 3 4 5 Items
+data modify entity @s Inventory[0] append from entity @s Inventory[0].Count
+data modify entity @s Inventory[0] append value 3
 effect clear @a minecraft:blindness
 effect give @s minecraft:blindness
 effect give @s minecraft:blindness 15
